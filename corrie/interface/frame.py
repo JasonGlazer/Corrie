@@ -93,6 +93,8 @@ class CorrieFrame(wx.Frame):
 
         top_border, other_border = occ_area_box.GetBordersForSizer()
         occ_area_sizer = wx.FlexGridSizer(cols=2, vgap=5, hgap=5)
+        occ_area_sizer.AddGrowableCol(0)
+        occ_area_sizer.AddGrowableCol(1)
         occ_area_sizer.AddSpacer(top_border)
         occ_area_sizer.AddSpacer(top_border)
 
@@ -102,8 +104,8 @@ class CorrieFrame(wx.Frame):
         for name, area in occ_areas.items():
             label = wx.StaticText(occ_area_box, -1, name)
             tc = wx.TextCtrl(occ_area_box, -1, str(area), size=(50, -1))
-            occ_area_sizer.Add(label, flag=wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, border=5)
-            occ_area_sizer.Add(tc, flag=wx.TOP, border=5)
+            occ_area_sizer.Add(label, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5)
+            occ_area_sizer.Add(tc, 0, wx.TOP, 5)
 
         occ_area_sizer.AddSpacer(top_border)
         occ_area_sizer.AddSpacer(top_border)
@@ -116,8 +118,9 @@ class CorrieFrame(wx.Frame):
         slide_list_text = ['Aspect Ratio', 'Number of Stories', 'Orientation', 'Wall Insulation', 'Roof Insulation',
                            'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
         slides_sizer.AddSpacer(top_border)
-        slide_list = wx.CheckListBox(slides_box, -1, (80, 50), wx.DefaultSize, slide_list_text)
-        slides_sizer.Add(slide_list, flag=wx.ALL, border=10)
+        slide_list = wx.CheckListBox(slides_box, 1, (80, 50), wx.DefaultSize, slide_list_text)
+        slides_sizer.Add(slide_list, 1, wx.ALL | wx.EXPAND, 10)
+        slides_sizer.AddStretchSpacer(1)
 
         up_down_option_sizer = wx.BoxSizer(wx.HORIZONTAL)
         slide_up_button = wx.Button(slides_box, 1, "Up", (20, 20))
@@ -128,18 +131,18 @@ class CorrieFrame(wx.Frame):
         up_down_option_sizer.Add(slide_down_button, 0, wx.ALL, 5)
         up_down_option_sizer.Add(slide_option_button, 0, wx.ALL, 5)
 
-        slides_sizer.Add(up_down_option_sizer, 0, wx.ALL, 10)
+        slides_sizer.Add(up_down_option_sizer, 0, wx.ALL | wx.ALIGN_BOTTOM , 10)
         slides_box.SetSizer(slides_sizer)
 
         run_cancel_sizer = wx.BoxSizer(wx.VERTICAL)
-        run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(120, 20))
-        cancel_simulations_button = wx.Button(pnl, 1, "Cancel", size=(120, 20))
+        run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(120, 30))
+        cancel_simulations_button = wx.Button(pnl, 1, "Cancel", size=(120, 30))
         run_cancel_sizer.Add(run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         run_cancel_sizer.Add(cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        bottom_hbox.Add(occ_area_box, 1, wx.ALL, 5)
-        bottom_hbox.Add(slides_box, 1, wx.ALL, 5)
+        bottom_hbox.Add(occ_area_box, 1, wx.ALL|wx.EXPAND, 5)
+        bottom_hbox.Add(slides_box, 1, wx.ALL|wx.EXPAND, 5)
         bottom_hbox.Add(run_cancel_sizer, 1, wx.ALL | wx.ALIGN_BOTTOM, 5)
 
         main_vbox = wx.BoxSizer(wx.VERTICAL)
