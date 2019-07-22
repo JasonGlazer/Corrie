@@ -82,6 +82,7 @@ class GeneralOptionsDialog(wx.Dialog):
         dialog_vbox.Add(ok_cancel_hbox, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         pnl.SetSizer(dialog_vbox)
-        self.SetSize(300, 600)
+        pnl.Fit()
+        self.Fit()
         self.SetTitle("General Options")
 

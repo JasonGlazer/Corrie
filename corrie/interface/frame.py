@@ -1,6 +1,7 @@
 import wx
 
 from corrie.interface import general_options
+from corrie.interface import slide_options
 
 # wx callbacks need an event argument even though we usually don't use it, so the next line disables that check
 # noinspection PyUnusedLocal
@@ -176,6 +177,7 @@ class CorrieFrame(wx.Frame):
         menu_option_general = option_menu.Append(201, "&General Options...", "General settings for this file.")
         self.Bind(wx.EVT_MENU, self.handle_menu_option_general, menu_option_general)
         menu_option_slide = option_menu.Append(202, "&Slide Options...", "Settings for the selected slide.")
+        self.Bind(wx.EVT_MENU, self.handle_slide_option_general, menu_option_slide)
         menu_bar.Append(option_menu, "&Option")
 
         help_menu = wx.Menu()
@@ -192,3 +194,9 @@ class CorrieFrame(wx.Frame):
         dialog_general_options = general_options.GeneralOptionsDialog(None)
         return_value = dialog_general_options.ShowModal()
         dialog_general_options.Destroy()
+
+    def handle_slide_option_general(self, event):
+        dialog_slide_options = slide_options.SlideOptionsDialog(None)
+        return_value = dialog_slide_options.ShowModal()
+        dialog_slide_options.Destroy()
+
