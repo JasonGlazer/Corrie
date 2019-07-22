@@ -1,5 +1,6 @@
 import wx
 
+from corrie.interface import general_options
 
 # wx callbacks need an event argument even though we usually don't use it, so the next line disables that check
 # noinspection PyUnusedLocal
@@ -159,29 +160,35 @@ class CorrieFrame(wx.Frame):
         menu_bar = wx.MenuBar()
 
         file_menu = wx.Menu()
-        file_menu.Append(101, "&New...", "Create a new Corrie file")
-        file_menu.Append(102, "&Open", "Open an existing Corrie file")
+        menu_file_new = file_menu.Append(101, "&New...", "Create a new Corrie file")
+        menu_file_open = file_menu.Append(102, "&Open", "Open an existing Corrie file")
         file_menu.AppendSeparator()
-        file_menu.Append(103, "&Save\tCtrl-S", "Save file to a same file name")
-        file_menu.Append(103, "Save &As...", "Save file to a new file name")
+        menu_file_save = file_menu.Append(103, "&Save\tCtrl-S", "Save file to a same file name")
+        menu_file_save_as = file_menu.Append(103, "Save &As...", "Save file to a new file name")
         file_menu.AppendSeparator()
-        file_menu.Append(104, "&Close", "Close the file")
+        menu_file_close = file_menu.Append(104, "&Close", "Close the file")
         file_menu.AppendSeparator()
-        file_menu.Append(105, "E&xit", "Exit the application")
-        self.Bind(wx.EVT_MENU, self.on_quit, id=105)
+        menu_file_exit = file_menu.Append(105, "E&xit", "Exit the application")
+        self.Bind(wx.EVT_MENU, self.on_quit, menu_file_exit)
         menu_bar.Append(file_menu, "&File")
 
         option_menu = wx.Menu()
-        option_menu.Append(201, "&General Options...", "General settings for this file.")
-        option_menu.Append(202, "&Slide Options...", "Settings for the selected slide.")
+        menu_option_general = option_menu.Append(201, "&General Options...", "General settings for this file.")
+        self.Bind(wx.EVT_MENU, self.handle_menu_option_general, menu_option_general)
+        menu_option_slide = option_menu.Append(202, "&Slide Options...", "Settings for the selected slide.")
         menu_bar.Append(option_menu, "&Option")
 
         help_menu = wx.Menu()
-        help_menu.Append(301, "&Topic...", "Get help.")
-        help_menu.Append(302, "&About...", "About Corrie.")
+        menu_help_topic = help_menu.Append(301, "&Topic...", "Get help.")
+        menu_help_about = help_menu.Append(302, "&About...", "About Corrie.")
         menu_bar.Append(help_menu, "&Help")
 
         self.SetMenuBar(menu_bar)
 
     def on_quit(self, e):
         self.Close()
+
+    def handle_menu_option_general(self, event):
+        dialog_general_options = general_options.GeneralOptionsDialog(None)
+        return_value = dialog_general_options.ShowModal()
+        dialog_general_options.Destroy()
