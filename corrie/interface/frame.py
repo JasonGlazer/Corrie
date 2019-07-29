@@ -7,6 +7,7 @@ from corrie.interface import slide_options
 # noinspection PyUnusedLocal
 class CorrieFrame(wx.Frame):
     OutputToolbarIconSize = (16, 15)
+    current_file_name = r"c:\temp\test1.corrie"
 
     def __init__(self, *args, **kwargs):
 
@@ -15,13 +16,22 @@ class CorrieFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
 
         # Set the title!
-        self.SetTitle("Corrie")
+        self.SetTitle("Corrie" + '   -   ' + self.current_file_name)
         self.SetSize(800, 660)
 
         # set the window exit
         self.Bind(wx.EVT_CLOSE, self.handle_frame_close)
 
         self.StatusBar = self.CreateStatusBar(1)
+
+        self.building_choice = None
+        self.front_faces_choice = None
+        self.baseline_code_choice = None
+        self.width_field = None
+        self.depth_field = None
+        self.powerpoint_filepick = None
+        self.excel_filepick = None
+        self.weather_filepick = None
 
         self.build_menu()
         self.gui_build()
@@ -35,61 +45,61 @@ class CorrieFrame(wx.Frame):
 
         building_label = wx.StaticText(pnl, label='Building')
         building_options = ['Office - Rectangle', 'Retail - Rectangle', 'School - U Shaped', 'School - E Shaped']
-        building_choice = wx.Choice(pnl, choices=building_options)
-        building_choice.SetSelection(0)
+        self.building_choice = wx.Choice(pnl, choices=building_options)
+        self.building_choice.SetSelection(0)
 
         front_faces_label = wx.StaticText(pnl, label='Front Faces')
         front_faces_option = ['North', 'North East', 'East', 'South East', 'South', 'South West', 'West', 'North West']
-        front_faces_choice = wx.Choice(pnl, choices=front_faces_option)
-        front_faces_choice.SetSelection(0)
+        self.front_faces_choice = wx.Choice(pnl, choices=front_faces_option)
+        self.front_faces_choice.SetSelection(0)
 
         baseline_code_label = wx.StaticText(pnl, label='Baseline Code')
         baseline_code_option = ['ASHRAE 90.1-2004', 'ASHRAE 90.1-2007', 'ASHRAE 90.1-2010', 'ASHRAE 90.1-2013',
                                 'ASHRAE 90.1-2016']
-        baseline_code_choice = wx.Choice(pnl, choices=baseline_code_option)
-        baseline_code_choice.SetSelection(0)
+        self.baseline_code_choice = wx.Choice(pnl, choices=baseline_code_option)
+        self.baseline_code_choice.SetSelection(0)
 
         building_hbox = wx.BoxSizer(wx.HORIZONTAL)
         building_hbox.Add(building_label, 0, wx.ALL, 10)
-        building_hbox.Add(building_choice, 1, wx.ALL | wx.EXPAND, 10)
+        building_hbox.Add(self.building_choice, 1, wx.ALL | wx.EXPAND, 10)
         building_hbox.Add(front_faces_label, 0, wx.ALL, 10)
-        building_hbox.Add(front_faces_choice, 1, wx.ALL | wx.EXPAND, 10)
+        building_hbox.Add(self.front_faces_choice, 1, wx.ALL | wx.EXPAND, 10)
         building_hbox.Add(baseline_code_label, 0, wx.ALL, 10)
-        building_hbox.Add(baseline_code_choice, 1, wx.ALL | wx.EXPAND, 10)
+        building_hbox.Add(self.baseline_code_choice, 1, wx.ALL | wx.EXPAND, 10)
 
         lot_boundaries_label = wx.StaticText(pnl, label='Lot Boundaries (feet)')
         width_label = wx.StaticText(pnl, label='Width')
-        width_field = wx.TextCtrl(pnl, value="500")
+        self.width_field = wx.TextCtrl(pnl, value="500")
         depth_label = wx.StaticText(pnl, label='Depth')
-        depth_field = wx.TextCtrl(pnl, value="500")
+        self.depth_field = wx.TextCtrl(pnl, value="500")
 
         lot_hbox = wx.BoxSizer(wx.HORIZONTAL)
         lot_hbox.Add(lot_boundaries_label, 0, wx.ALL, 10)
         lot_hbox.Add(width_label, 0, wx.ALL, 10)
-        lot_hbox.Add(width_field, 1, wx.ALL | wx.EXPAND, 10)
+        lot_hbox.Add(self.width_field, 1, wx.ALL | wx.EXPAND, 10)
         lot_hbox.Add(depth_label, 0, wx.ALL, 10)
-        lot_hbox.Add(depth_field, 1, wx.ALL | wx.EXPAND, 10)
+        lot_hbox.Add(self.depth_field, 1, wx.ALL | wx.EXPAND, 10)
 
         powerpoint_label = wx.StaticText(pnl, label='PowerPoint File', size=(90, -1))
-        powerpoint_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
+        self.powerpoint_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
 
         powerpoint_hbox = wx.BoxSizer(wx.HORIZONTAL)
         powerpoint_hbox.Add(powerpoint_label, 0, wx.ALL, 10)
-        powerpoint_hbox.Add(powerpoint_filepick, 1, wx.ALL | wx.EXPAND, 10)
+        powerpoint_hbox.Add(self.powerpoint_filepick, 1, wx.ALL | wx.EXPAND, 10)
 
         excel_label = wx.StaticText(pnl, label='Excel File', size=(90, -1))
-        excel_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
+        self.excel_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
 
         excel_hbox = wx.BoxSizer(wx.HORIZONTAL)
         excel_hbox.Add(excel_label, 0, wx.ALL, 10)
-        excel_hbox.Add(excel_filepick, 1, wx.ALL | wx.EXPAND, 10)
+        excel_hbox.Add(self.excel_filepick, 1, wx.ALL | wx.EXPAND, 10)
 
         weather_label = wx.StaticText(pnl, label='Weather File', size=(90, -1))
-        weather_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
+        self.weather_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
 
         weather_hbox = wx.BoxSizer(wx.HORIZONTAL)
         weather_hbox.Add(weather_label, 0, wx.ALL, 10)
-        weather_hbox.Add(weather_filepick, 1, wx.ALL | wx.EXPAND, 10)
+        weather_hbox.Add(self.weather_filepick, 1, wx.ALL | wx.EXPAND, 10)
 
         occ_area_box = wx.StaticBox(pnl, -1, "Occupancy Areas (square feet)")
 
@@ -163,13 +173,16 @@ class CorrieFrame(wx.Frame):
         file_menu = wx.Menu()
         menu_file_new = file_menu.Append(101, "&New...", "Create a new Corrie file")
         menu_file_open = file_menu.Append(102, "&Open", "Open an existing Corrie file")
+        self.Bind(wx.EVT_MENU, self.handle_file_open, menu_file_open)
         file_menu.AppendSeparator()
         menu_file_save = file_menu.Append(103, "&Save\tCtrl-S", "Save file to a same file name")
-        menu_file_save_as = file_menu.Append(103, "Save &As...", "Save file to a new file name")
+        self.Bind(wx.EVT_MENU, self.handle_file_save, menu_file_save)
+        menu_file_save_as = file_menu.Append(104, "Save &As...", "Save file to a new file name")
+        self.Bind(wx.EVT_MENU, self.handle_file_save_as, menu_file_save_as)
         file_menu.AppendSeparator()
-        menu_file_close = file_menu.Append(104, "&Close", "Close the file")
+        menu_file_close = file_menu.Append(105, "&Close", "Close the file")
         file_menu.AppendSeparator()
-        menu_file_exit = file_menu.Append(105, "E&xit", "Exit the application")
+        menu_file_exit = file_menu.Append(106, "E&xit", "Exit the application")
         self.Bind(wx.EVT_MENU, self.on_quit, menu_file_exit)
         menu_bar.Append(file_menu, "&File")
 
@@ -188,6 +201,7 @@ class CorrieFrame(wx.Frame):
         self.SetMenuBar(menu_bar)
 
     def on_quit(self, e):
+        print("on_quit")
         self.Close()
 
     def handle_menu_option_general(self, event):
@@ -199,4 +213,23 @@ class CorrieFrame(wx.Frame):
         dialog_slide_options = slide_options.SlideOptionsDialog(None)
         return_value = dialog_slide_options.ShowModal()
         dialog_slide_options.Destroy()
+
+    def handle_file_open(self, event):
+        pass
+
+    def handle_file_save(self, event):
+        print("handle_file_save entered")
+        save_data = {}
+        save_data['building'] = self.building_choice.GetString(self.building_choice.GetSelection())
+        save_data['frontFaces'] = self.front_faces_choice.GetString(self.front_faces_choice.GetSelection())
+        save_data['baselineCode'] = self.baseline_code_choice.GetString(self.baseline_code_choice.GetSelection())
+        save_data['width'] = self.width_field.GetValue()
+        save_data['depth'] = self.depth_field.GetValue()
+        save_data['powerpointPath'] = self.powerpoint_filepick.GetPath()
+        save_data['excelPath'] = self.excel_filepick.GetPath()
+        save_data['weatherPath'] = self.weather_filepick.GetPath()
+        pass
+
+    def handle_file_save_as(self, event):
+        pass
 
