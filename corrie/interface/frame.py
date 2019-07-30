@@ -134,7 +134,7 @@ class CorrieFrame(wx.Frame):
                            'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
         slide_list_order = list(range(len(slide_list_text)))
         slides_sizer.AddSpacer(top_border)
-        self.slide_list = wx.RearrangeCtrl(slides_box, 1, (100, 50), wx.DefaultSize, items=slide_list_text, order=slide_list_order)
+        self.slide_list = wx.RearrangeCtrl(slides_box, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slide_list_ctrl = self.slide_list.GetList()
         slide_list_ctrl.SetSelection(0)
 
@@ -153,11 +153,11 @@ class CorrieFrame(wx.Frame):
         select_mode_hbox.Add(select_mode_choice, 1, wx.ALL, 5)
         slides_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
 
-        parameter_value_label = wx.StaticText(slides_box, label="Parameter Values - Aspect Ratio")
-        slides_sizer.Add(parameter_value_label, 0, wx.ALL, 5)
+        option_simulated_label = wx.StaticText(slides_box, label="Options Simulated - Aspect Ratio")
+        slides_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
 
         value_options = ['0.6','0.8','1.0','1.2','1.4','1.6','1.8','2.0']
-        value_choice = wx.CheckListBox(slides_box, 1, (80, 50), wx.DefaultSize, value_options)
+        value_choice = wx.CheckListBox(slides_box, 1, size=wx.DefaultSize, choices=value_options)
         value_choice.SetSelection(0)
         slides_sizer.Add(value_choice, 1, wx.ALL, 5)
 
