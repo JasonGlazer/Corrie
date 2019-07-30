@@ -2,7 +2,6 @@ import wx
 import json
 
 from corrie.interface import general_options
-from corrie.interface import slide_options
 
 # wx callbacks need an event argument even though we usually don't use it, so the next line disables that check
 # noinspection PyUnusedLocal
@@ -135,11 +134,37 @@ class CorrieFrame(wx.Frame):
                            'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
         slide_list_order = list(range(len(slide_list_text)))
         slides_sizer.AddSpacer(top_border)
-        self.slide_list = wx.RearrangeCtrl(slides_box, 1, (80, 50), wx.DefaultSize, items=slide_list_text, order=slide_list_order)
+        self.slide_list = wx.RearrangeCtrl(slides_box, 1, (100, 50), wx.DefaultSize, items=slide_list_text, order=slide_list_order)
+        slide_list_ctrl = self.slide_list.GetList()
+        slide_list_ctrl.SetSelection(0)
+
         slides_sizer.Add(self.slide_list, 1, wx.ALL | wx.EXPAND, 10)
         slides_sizer.AddStretchSpacer(1)
-        slide_option_button = wx.Button(slides_box, 1, "Option..", (20, 20))
-        slides_sizer.Add(slide_option_button, 0, wx.ALL | wx.ALIGN_BOTTOM , 10)
+
+        select_mode_hbox = wx.BoxSizer(wx.HORIZONTAL)
+        select_mode_label = wx.StaticText(slides_box, label='Selection Mode - Aspect Ratio')
+        select_mode_options = ['Automatic', 'Exclude Best Option', 'Exclude Two Best Options',
+                               'Exclude Three Best Options', 'Select Option 1', 'Select Option 2', 'Select Option 3',
+                               'Select Option 4', 'Select Option 5', 'Select Option 6', 'Select Option 7',
+                               'Select Option 8']
+        select_mode_choice = wx.Choice(slides_box, choices=select_mode_options)
+        select_mode_choice.SetSelection(0)
+        select_mode_hbox.Add(select_mode_label, 0, wx.ALL, 5)
+        select_mode_hbox.Add(select_mode_choice, 1, wx.ALL, 5)
+        slides_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
+
+        parameter_value_label = wx.StaticText(slides_box, label="Parameter Values - Aspect Ratio")
+        slides_sizer.Add(parameter_value_label, 0, wx.ALL, 5)
+
+        value_options = ['0.6','0.8','1.0','1.2','1.4','1.6','1.8','2.0']
+        value_choice = wx.CheckListBox(slides_box, 1, (80, 50), wx.DefaultSize, value_options)
+        value_choice.SetSelection(0)
+        slides_sizer.Add(value_choice, 1, wx.ALL, 5)
+
+        incremental_checkbox = wx.CheckBox(slides_box, label='Include in Incremental Improvements - Aspect Ratio')
+        incremental_checkbox.SetValue(True)
+        slides_sizer.Add(incremental_checkbox, 0, wx.ALL, 5)
+
         slides_box.SetSizer(slides_sizer)
 
         run_cancel_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -162,6 +187,7 @@ class CorrieFrame(wx.Frame):
         main_vbox.Add(bottom_hbox, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
 
         pnl.SetSizer(main_vbox)
+        pnl.Fit()
 
     def build_menu(self):
         menu_bar = wx.MenuBar()
@@ -185,8 +211,6 @@ class CorrieFrame(wx.Frame):
         option_menu = wx.Menu()
         menu_option_general = option_menu.Append(201, "&General Options...", "General settings for this file.")
         self.Bind(wx.EVT_MENU, self.handle_menu_option_general, menu_option_general)
-        menu_option_slide = option_menu.Append(202, "&Slide Options...", "Settings for the selected slide.")
-        self.Bind(wx.EVT_MENU, self.handle_slide_option_general, menu_option_slide)
         menu_bar.Append(option_menu, "&Option")
 
         help_menu = wx.Menu()
@@ -204,11 +228,6 @@ class CorrieFrame(wx.Frame):
         dialog_general_options = general_options.GeneralOptionsDialog(None)
         return_value = dialog_general_options.ShowModal()
         dialog_general_options.Destroy()
-
-    def handle_slide_option_general(self, event):
-        dialog_slide_options = slide_options.SlideOptionsDialog(None)
-        return_value = dialog_slide_options.ShowModal()
-        dialog_slide_options.Destroy()
 
     def handle_file_open(self, event):
         pass
