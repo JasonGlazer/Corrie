@@ -13,6 +13,9 @@ class GeneralOptionsDialog(wx.Dialog):
         pnl = wx.Panel(self)
         dialog_vbox = wx.BoxSizer(wx.VERTICAL)
 
+        top_hbox = wx.BoxSizer(wx.HORIZONTAL)
+        misc_option_vbox = wx.BoxSizer(wx.VERTICAL)
+
         output_metric_hbox = wx.BoxSizer(wx.HORIZONTAL)
         output_metric_label = wx.StaticText(pnl, label='Output Metric')
         output_metric_options = ['Source Energy Use Intensity', 'Site Energy Use Intensity','Annual CO2']
@@ -21,7 +24,7 @@ class GeneralOptionsDialog(wx.Dialog):
 
         output_metric_hbox.Add(output_metric_label, 0, wx.ALL, 5)
         output_metric_hbox.Add(output_metric_choice, 1, wx.ALL, 5)
-        dialog_vbox.Add(output_metric_hbox, 0, wx.ALL, 5)
+        misc_option_vbox.Add(output_metric_hbox, 0, wx.ALL, 5)
 
         units_hbox = wx.BoxSizer(wx.HORIZONTAL)
         units_label = wx.StaticText(pnl, label='Units')
@@ -30,16 +33,35 @@ class GeneralOptionsDialog(wx.Dialog):
         units_choice.SetSelection(0)
         units_hbox.Add(units_label, 0, wx.ALL, 5)
         units_hbox.Add(units_choice, 1, wx.ALL, 5)
-        dialog_vbox.Add(units_hbox, 0, wx.ALL, 5)
+        misc_option_vbox.Add(units_hbox, 0, wx.ALL, 5)
+
+        chart_type_hbox = wx.BoxSizer(wx.HORIZONTAL)
+        chart_type_label = wx.StaticText(pnl, label='Chart Type')
+        chart_type_options = ['Horizontal Bar', 'Vertical Column', 'Vertical Line']
+        chart_type_choice = wx.Choice(pnl, choices=chart_type_options)
+        chart_type_choice.SetSelection(0)
+        chart_type_hbox.Add(chart_type_label, 0, wx.ALL, 5)
+        chart_type_hbox.Add(chart_type_choice, 1, wx.ALL, 5)
+        misc_option_vbox.Add(chart_type_hbox, 0, wx.ALL, 5)
+
+        sort_option_hbox = wx.BoxSizer(wx.HORIZONTAL)
+        sort_option_label = wx.StaticText(pnl, label='Chart Sort Options')
+        sort_option_options = ['No Sort', 'Ascending', 'Decending']
+        sort_option_choice = wx.Choice(pnl, choices=sort_option_options)
+        sort_option_choice.SetSelection(0)
+        sort_option_hbox.Add(sort_option_label, 0, wx.ALL, 5)
+        sort_option_hbox.Add(sort_option_choice, 1, wx.ALL, 5)
+        misc_option_vbox.Add(sort_option_hbox, 0, wx.ALL, 5)
 
         show_cumulative_checkbox = wx.CheckBox(pnl, label='Show Cumulative Chart Slide')
-        dialog_vbox.Add(show_cumulative_checkbox, 0, wx.ALL, 5)
+        misc_option_vbox.Add(show_cumulative_checkbox, 0, wx.ALL, 5)
 
         show_end_use_pie_checkbox = wx.CheckBox(pnl, label='Show End Use Pie Chart Slide')
-        dialog_vbox.Add(show_end_use_pie_checkbox, 0, wx.ALL, 5)
+        misc_option_vbox.Add(show_end_use_pie_checkbox, 0, wx.ALL, 5)
 
         show_end_use_monthly_checkbox = wx.CheckBox(pnl, label='Show End Use Monthly Chart Slide')
-        dialog_vbox.Add(show_end_use_monthly_checkbox, 0, wx.ALL, 5)
+        misc_option_vbox.Add(show_end_use_monthly_checkbox, 0, wx.ALL, 5)
+        top_hbox.Add(misc_option_vbox, 0, wx.ALL, 5)
 
         excel_box = wx.StaticBox(pnl, -1, "Excel")
         top_border, other_border = excel_box.GetBordersForSizer()
@@ -72,7 +94,8 @@ class GeneralOptionsDialog(wx.Dialog):
         excel_sizer.Add(slide_list, 1, wx.ALL, 10)
 
         excel_box.SetSizer(excel_sizer)
-        dialog_vbox.Add(excel_box, 0, wx.ALL, 5)
+        top_hbox.Add(excel_box, 0, wx.ALL, 5)
+        dialog_vbox.Add(top_hbox, 0, wx.ALL , 5)
 
         ok_cancel_hbox = wx.BoxSizer(wx.HORIZONTAL)
         ok_button = wx.Button(pnl, 1, "OK", size=(60, 30))

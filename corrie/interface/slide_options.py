@@ -20,24 +20,6 @@ class SlideOptionsDialog(wx.Dialog):
         title_hbox.Add(title_field, 1, wx.ALL, 5)
         dialog_vbox.Add(title_hbox, 0, wx.ALL, 5)
 
-        chart_type_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        chart_type_label = wx.StaticText(pnl, label='Chart Type')
-        chart_type_options = ['Horizontal Bar', 'Vertical Column', 'Vertical Line']
-        chart_type_choice = wx.Choice(pnl, choices=chart_type_options)
-        chart_type_choice.SetSelection(0)
-        chart_type_hbox.Add(chart_type_label, 0, wx.ALL, 5)
-        chart_type_hbox.Add(chart_type_choice, 1, wx.ALL, 5)
-        dialog_vbox.Add(chart_type_hbox, 0, wx.ALL, 5)
-
-        sort_option_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        sort_option_label = wx.StaticText(pnl, label='Sort Options')
-        sort_option_options = ['No Sort', 'Ascending', 'Decending']
-        sort_option_choice = wx.Choice(pnl, choices=sort_option_options)
-        sort_option_choice.SetSelection(0)
-        sort_option_hbox.Add(sort_option_label, 0, wx.ALL, 5)
-        sort_option_hbox.Add(sort_option_choice, 1, wx.ALL, 5)
-        dialog_vbox.Add(sort_option_hbox, 0, wx.ALL, 5)
-
         select_mode_hbox = wx.BoxSizer(wx.HORIZONTAL)
         select_mode_label = wx.StaticText(pnl, label='Selection Mode')
         select_mode_options = ['Automatic', 'Exclude Best Option', 'Exclude Two Best Options', 'Exclude Three Best Options']
