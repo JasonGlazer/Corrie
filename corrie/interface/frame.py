@@ -133,23 +133,13 @@ class CorrieFrame(wx.Frame):
 
         slide_list_text = ['Aspect Ratio', 'Number of Stories', 'Orientation', 'Wall Insulation', 'Roof Insulation',
                            'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
-        slide_list_order = [0,1,2,3,4,5,6,7,8]
+        slide_list_order = list(range(len(slide_list_text)))
         slides_sizer.AddSpacer(top_border)
-        #self.slide_list = wx.CheckListBox(slides_box, 1, (80, 50), wx.DefaultSize, slide_list_text)
         self.slide_list = wx.RearrangeCtrl(slides_box, 1, (80, 50), wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slides_sizer.Add(self.slide_list, 1, wx.ALL | wx.EXPAND, 10)
         slides_sizer.AddStretchSpacer(1)
-
-        up_down_option_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        #slide_up_button = wx.Button(slides_box, 1, "Up", (20, 20))
-        #slide_down_button = wx.Button(slides_box, 1, "Down", (20, 20))
         slide_option_button = wx.Button(slides_box, 1, "Option..", (20, 20))
-
-        #up_down_option_sizer.Add(slide_up_button, 0, wx.ALL, 5)
-        #up_down_option_sizer.Add(slide_down_button, 0, wx.ALL, 5)
-        up_down_option_sizer.Add(slide_option_button, 0, wx.ALL, 5)
-
-        slides_sizer.Add(up_down_option_sizer, 0, wx.ALL | wx.ALIGN_BOTTOM , 10)
+        slides_sizer.Add(slide_option_button, 0, wx.ALL | wx.ALIGN_BOTTOM , 10)
         slides_box.SetSizer(slides_sizer)
 
         run_cancel_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -239,13 +229,14 @@ class CorrieFrame(wx.Frame):
             occ_area_save_data[name] = text_control.GetValue()
         save_data['occupancyAreas'] = occ_area_save_data
         slide_list_save_data = {}
-        for index in range(self.slide_list.GetCount()):
-            slide_list_save_data[index] = [self.slide_list.GetString(index), self.slide_list.IsChecked(index)]
+        slide_list_ctrl = self.slide_list.GetList()
+        for index in range(slide_list_ctrl.GetCount()):
+            slide_list_save_data[index] = [slide_list_ctrl.GetString(index), slide_list_ctrl.IsChecked(index)]
         save_data['slideList'] = slide_list_save_data
 
         print(save_data)
         print(json.dumps(save_data, indent=4))
-        pass
+        print(slide_list_ctrl.GetCurrentOrder())
 
     def handle_file_save_as(self, event):
         pass
