@@ -1,4 +1,5 @@
 import wx
+import json
 
 from corrie.interface import general_options
 from corrie.interface import slide_options
@@ -32,6 +33,8 @@ class CorrieFrame(wx.Frame):
         self.powerpoint_filepick = None
         self.excel_filepick = None
         self.weather_filepick = None
+        self.occ_areas_text_controls = None
+        self.slide_list = None
 
         self.build_menu()
         self.gui_build()
@@ -113,11 +116,12 @@ class CorrieFrame(wx.Frame):
         occ_areas = {'Office': 1000, 'Retail': 2000, 'Storage': 1200, 'Dining': 0,
                      'other1': 0, 'other2': 0, 'other3': 0, 'other4': 0}
 
+        self.occ_areas_text_controls = {}
         for name, area in occ_areas.items():
             label = wx.StaticText(occ_area_box, -1, name)
-            tc = wx.TextCtrl(occ_area_box, -1, str(area), size=(50, -1))
+            self.occ_areas_text_controls[name] = wx.TextCtrl(occ_area_box, -1, str(area), size=(50, -1))
             occ_area_sizer.Add(label, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5)
-            occ_area_sizer.Add(tc, 0, wx.TOP, 5)
+            occ_area_sizer.Add(self.occ_areas_text_controls[name], 0, wx.TOP, 5)
 
         occ_area_sizer.AddSpacer(top_border)
         occ_area_sizer.AddSpacer(top_border)
@@ -129,32 +133,34 @@ class CorrieFrame(wx.Frame):
 
         slide_list_text = ['Aspect Ratio', 'Number of Stories', 'Orientation', 'Wall Insulation', 'Roof Insulation',
                            'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
+        slide_list_order = [0,1,2,3,4,5,6,7,8]
         slides_sizer.AddSpacer(top_border)
-        slide_list = wx.CheckListBox(slides_box, 1, (80, 50), wx.DefaultSize, slide_list_text)
-        slides_sizer.Add(slide_list, 1, wx.ALL | wx.EXPAND, 10)
+        #self.slide_list = wx.CheckListBox(slides_box, 1, (80, 50), wx.DefaultSize, slide_list_text)
+        self.slide_list = wx.RearrangeCtrl(slides_box, 1, (80, 50), wx.DefaultSize, items=slide_list_text, order=slide_list_order)
+        slides_sizer.Add(self.slide_list, 1, wx.ALL | wx.EXPAND, 10)
         slides_sizer.AddStretchSpacer(1)
 
         up_down_option_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        slide_up_button = wx.Button(slides_box, 1, "Up", (20, 20))
-        slide_down_button = wx.Button(slides_box, 1, "Down", (20, 20))
+        #slide_up_button = wx.Button(slides_box, 1, "Up", (20, 20))
+        #slide_down_button = wx.Button(slides_box, 1, "Down", (20, 20))
         slide_option_button = wx.Button(slides_box, 1, "Option..", (20, 20))
 
-        up_down_option_sizer.Add(slide_up_button, 0, wx.ALL, 5)
-        up_down_option_sizer.Add(slide_down_button, 0, wx.ALL, 5)
+        #up_down_option_sizer.Add(slide_up_button, 0, wx.ALL, 5)
+        #up_down_option_sizer.Add(slide_down_button, 0, wx.ALL, 5)
         up_down_option_sizer.Add(slide_option_button, 0, wx.ALL, 5)
 
         slides_sizer.Add(up_down_option_sizer, 0, wx.ALL | wx.ALIGN_BOTTOM , 10)
         slides_box.SetSizer(slides_sizer)
 
         run_cancel_sizer = wx.BoxSizer(wx.VERTICAL)
-        run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(120, 30))
-        cancel_simulations_button = wx.Button(pnl, 1, "Cancel", size=(120, 30))
+        run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
+        cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
         run_cancel_sizer.Add(run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         run_cancel_sizer.Add(cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
         bottom_hbox.Add(occ_area_box, 1, wx.ALL|wx.EXPAND, 5)
-        bottom_hbox.Add(slides_box, 1, wx.ALL|wx.EXPAND, 5)
+        bottom_hbox.Add(slides_box, 2, wx.ALL|wx.EXPAND, 5)
         bottom_hbox.Add(run_cancel_sizer, 1, wx.ALL | wx.ALIGN_BOTTOM, 5)
 
         main_vbox = wx.BoxSizer(wx.VERTICAL)
@@ -228,6 +234,17 @@ class CorrieFrame(wx.Frame):
         save_data['powerpointPath'] = self.powerpoint_filepick.GetPath()
         save_data['excelPath'] = self.excel_filepick.GetPath()
         save_data['weatherPath'] = self.weather_filepick.GetPath()
+        occ_area_save_data = {}
+        for name, text_control in self.occ_areas_text_controls.items():
+            occ_area_save_data[name] = text_control.GetValue()
+        save_data['occupancyAreas'] = occ_area_save_data
+        slide_list_save_data = {}
+        for index in range(self.slide_list.GetCount()):
+            slide_list_save_data[index] = [self.slide_list.GetString(index), self.slide_list.IsChecked(index)]
+        save_data['slideList'] = slide_list_save_data
+
+        print(save_data)
+        print(json.dumps(save_data, indent=4))
         pass
 
     def handle_file_save_as(self, event):
