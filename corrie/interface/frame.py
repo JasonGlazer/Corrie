@@ -34,6 +34,9 @@ class CorrieFrame(wx.Frame):
         self.weather_filepick = None
         self.occ_areas_text_controls = None
         self.slide_list = None
+        self.slide_details_box = None
+
+        self.all_slide_details = self.populate_all_slide_details()
 
         self.build_menu()
         self.gui_build()
@@ -129,41 +132,42 @@ class CorrieFrame(wx.Frame):
         slide_list_order = list(range(len(slide_list_text)))
         self.slide_list = wx.RearrangeCtrl(pnl, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slide_list_ctrl = self.slide_list.GetList()
+        self.Bind(wx.EVT_LISTBOX, self.handle_slide_list_ctrl_click, slide_list_ctrl)
         slide_list_ctrl.SetSelection(0)
 
         slides_sizer = wx.BoxSizer(wx.VERTICAL)
-        slides_sizer.Add(slides_label, 0, wx.ALL, 10)
-        slides_sizer.Add(self.slide_list, 1, wx.ALL | wx.EXPAND, 10)
+        slides_sizer.Add(slides_label, 0, wx.ALL, 5)
+        slides_sizer.Add(self.slide_list, 1, wx.ALL | wx.EXPAND, 5)
 
-        slide_details_box = wx.StaticBox(pnl, -1, "Slide Details for: Aspect Ratio")
-        top_border, other_border = slide_details_box.GetBordersForSizer()
+        self.slide_details_box = wx.StaticBox(pnl, -1, "Slide Details for: Aspect Ratio")
+        top_border, other_border = self.slide_details_box.GetBordersForSizer()
         slide_details_sizer = wx.BoxSizer(wx.VERTICAL)
         slide_details_sizer.AddSpacer(top_border)
 
         select_mode_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        select_mode_label = wx.StaticText(slide_details_box, label='Selection Mode')
+        select_mode_label = wx.StaticText(self.slide_details_box, label='Selection Mode')
         select_mode_options = ['Automatic', 'Exclude Best Option', 'Exclude Two Best Options',
                                'Exclude Three Best Options', 'Select Option 1', 'Select Option 2', 'Select Option 3',
                                'Select Option 4', 'Select Option 5', 'Select Option 6', 'Select Option 7',
                                'Select Option 8']
-        select_mode_choice = wx.Choice(slide_details_box, choices=select_mode_options)
+        select_mode_choice = wx.Choice(self.slide_details_box, choices=select_mode_options)
         select_mode_choice.SetSelection(0)
         select_mode_hbox.Add(select_mode_label, 0, wx.ALL, 5)
         select_mode_hbox.Add(select_mode_choice, 1, wx.ALL, 5)
         slide_details_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
 
-        option_simulated_label = wx.StaticText(slide_details_box, label="Options Simulated")
+        option_simulated_label = wx.StaticText(self.slide_details_box, label="Options Simulated")
         slide_details_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
 
         value_options = ['0.6','0.8','1.0','1.2','1.4','1.6','1.8','2.0']
-        value_choice = wx.CheckListBox(slide_details_box, 1, size=wx.DefaultSize, choices=value_options)
+        value_choice = wx.CheckListBox(self.slide_details_box, 1, size=wx.DefaultSize, choices=value_options)
         value_choice.SetSelection(0)
         slide_details_sizer.Add(value_choice, 1, wx.ALL, 5)
 
-        incremental_checkbox = wx.CheckBox(slide_details_box, label='Include in Incremental Improvements')
+        incremental_checkbox = wx.CheckBox(self.slide_details_box, label='Include in Incremental Improvements')
         incremental_checkbox.SetValue(True)
         slide_details_sizer.Add(incremental_checkbox, 0, wx.ALL, 5)
-        slide_details_box.SetSizer(slide_details_sizer)
+        self.slide_details_box.SetSizer(slide_details_sizer)
 
         run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
         cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
@@ -173,7 +177,7 @@ class CorrieFrame(wx.Frame):
         run_cancel_sizer.Add(cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         bottom_right_sizer = wx.BoxSizer(wx.VERTICAL)
-        bottom_right_sizer.Add(slide_details_box, 1, wx.ALL | wx.ALIGN_TOP |wx.EXPAND, 5)
+        bottom_right_sizer.Add(self.slide_details_box, 1, wx.ALL | wx.ALIGN_TOP |wx.EXPAND, 5)
         bottom_right_sizer.Add(run_cancel_sizer, 0, wx.ALL | wx.ALIGN_BOTTOM | wx.ALIGN_RIGHT | wx.EXPAND, 5)
 
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
@@ -192,6 +196,136 @@ class CorrieFrame(wx.Frame):
         pnl.SetSizer(main_vbox)
         pnl.Fit()
 
+    def populate_all_slide_details(self):
+        all_slide_details = {}
+        #aspect ratio
+        options = []
+        options.append(["width 1.0 : depth 3.0", True])
+        options.append(["width 1.0 : depth 2.5", False])
+        options.append(["width 1.0 : depth 2.0", True])
+        options.append(["width 1.0 : depth 1.5", False])
+        options.append(["width 1.0 : depth 1.0", True])
+        options.append(["width 1.5 : depth 1.0", False])
+        options.append(["width 2.0 : depth 1.0", True])
+        options.append(["width 2.5 : depth 1.0", False])
+        options.append(["width 3.0 : depth 1.0", True])
+        all_slide_details['Aspect Ratio'] = ['Automatic',True, options]
+
+        options.clear()
+        options.append(["One Floor", True])
+        options.append(["One Floor with Basement", True])
+        options.append(["Two Floors", True])
+        options.append(["Two Floors with Basement", True])
+        options.append(["Three Floors", True])
+        options.append(["Three Floors with Basement", True])
+        options.append(["Four Floors", True])
+        options.append(["Four Floors with Basement", True])
+        all_slide_details['Number of Stories'] = ['Automatic',False, options]
+
+        options.clear()
+        options.append(["Entrance Faces North", True])
+        options.append(["Entrance Faces North East", True])
+        options.append(["Entrance Faces East", True])
+        options.append(["Entrance Faces South East", True])
+        options.append(["Entrance Faces South", True])
+        options.append(["Entrance Faces South West", True])
+        options.append(["Entrance Faces West", True])
+        options.append(["Entrance Faces North West", True])
+        all_slide_details['Orientation'] = ['Automatic',False, options]
+
+        options.clear()
+        options.append(["Additional R2", True])
+        options.append(["Additional R4", True])
+        options.append(["Additional R6", True])
+        options.append(["Additional R8", True])
+        options.append(["Additional R10", True])
+        options.append(["Additional R12", True])
+        options.append(["Reduced by R2", False])
+        options.append(["Reduced by R4", False])
+        all_slide_details['Wall Insulation'] = ['Automatic',True, options]
+
+        options.clear()
+        options.append(["Additional R2", True])
+        options.append(["Additional R4", True])
+        options.append(["Additional R6", True])
+        options.append(["Additional R8", True])
+        options.append(["Additional R10", True])
+        options.append(["Additional R12", True])
+        options.append(["Additional R14", True])
+        options.append(["Additional R16", True])
+        options.append(["Additional R18", True])
+        options.append(["Additional R20", True])
+        options.append(["Reduced by R2", False])
+        options.append(["Reduced by R4", False])
+        options.append(["Reduced by R6", False])
+        all_slide_details['Roof Insulation'] = ['Automatic',True, options]
+
+        options.clear()
+        options.append(["Increase 10%", False])
+        options.append(["Increase 8%", False])
+        options.append(["Increase 6%", False])
+        options.append(["Increase 4%", False])
+        options.append(["Increase 2%", False])
+        options.append(["Decrease 2%", True])
+        options.append(["Decrease 4%", True])
+        options.append(["Decrease 6%", True])
+        options.append(["Decrease 8%", True])
+        options.append(["Decrease 10%", True])
+        options.append(["Decrease 12%", True])
+        options.append(["Decrease 14%", True])
+        options.append(["Decrease 16%", True])
+        options.append(["Decrease 18%", True])
+        options.append(["Decrease 20%", True])
+        all_slide_details['Window to wall ratio'] = ['Automatic',True, options]
+
+        options.clear()
+        # from CSBR-UMN (2013) - See MaxTech final report
+        options.append(["U-Factor=0.99 SHGC=0.72 Tvis=0.74", True])
+        options.append(["U-Factor=0.55 SHGC=0.61 Tvis=0.64", True])
+        options.append(["U-Factor=0.55 SHGC=0.45 Tvis=0.39", True])
+        options.append(["U-Factor=0.53 SHGC=0.18 Tvis=0.08", True])
+        options.append(["U-Factor=0.39 SHGC=0.27 Tvis=0.43", True])
+        options.append(["U-Factor=0.39 SHGC=0.23 Tvis=0.30", True])
+        options.append(["U-Factor=0.39 SHGC=0.35 Tvis=0.57", True])
+        options.append(["U-Factor=0.38 SHGC=0.26 Tvis=0.52", True])
+        options.append(["U-Factor=0.22 SHGC=0.28 Tvis=0.49", True])
+        options.append(["U-Factor=0.21 SHGC=0.19 Tvis=0.28", True])
+        options.append(["U-Factor=0.97 SHGC=0.44 Tvis=0.50", True])
+        options.append(["U-Factor=0.55 SHGC=0.48 Tvis=0.44", True])
+        all_slide_details['Fenestration Options'] = ['Automatic',True, options]
+
+        options.clear()
+        options.append(["Depth is 0.2 x Window Height", True])
+        options.append(["Depth is 0.3 x Window Height", True])
+        options.append(["Depth is 0.4 x Window Height", True])
+        options.append(["Depth is 0.5 x Window Height", True])
+        options.append(["Depth is 0.6 x Window Height", True])
+        options.append(["Depth is 0.7 x Window Height", True])
+        options.append(["Depth is 0.8 x Window Height", True])
+        all_slide_details['Window Overhang'] = ['Automatic',True, options]
+
+        options.clear()
+        options.append(["Reduce 0.05 W/sqft", True])
+        options.append(["Reduce 0.10 W/sqft", True])
+        options.append(["Reduce 0.15 W/sqft", True])
+        options.append(["Reduce 0.20 W/sqft", True])
+        options.append(["Reduce 0.25 W/sqft", True])
+        options.append(["Reduce 0.30 W/sqft", True])
+        options.append(["Reduce 0.35 W/sqft", True])
+        options.append(["Reduce 0.40 W/sqft", True])
+        options.append(["Reduce 0.45 W/sqft", True])
+        options.append(["Reduce 0.50 W/sqft", True])
+        options.append(["Reduce 0.55 W/sqft", True])
+        all_slide_details['Lighting Power Density'] = ['Automatic',True, options]
+
+        print(all_slide_details)
+        return all_slide_details
+
+    def handle_slide_list_ctrl_click(self, event):
+        slide_list_ctrl = self.slide_list.GetList()
+        #print("clicked on slide: " + slide_list_ctrl.GetString(slide_list_ctrl.GetSelection()))
+        self.slide_details_box.SetLabel("Slide Details for: " + slide_list_ctrl.GetString(slide_list_ctrl.GetSelection()))
+
     def build_menu(self):
         menu_bar = wx.MenuBar()
 
@@ -208,7 +342,7 @@ class CorrieFrame(wx.Frame):
         menu_file_close = file_menu.Append(105, "&Close", "Close the file")
         file_menu.AppendSeparator()
         menu_file_exit = file_menu.Append(106, "E&xit", "Exit the application")
-        self.Bind(wx.EVT_MENU, self.on_quit, menu_file_exit)
+        self.Bind(wx.EVT_MENU, self.handle_quit, menu_file_exit)
         menu_bar.Append(file_menu, "&File")
 
         option_menu = wx.Menu()
@@ -223,8 +357,7 @@ class CorrieFrame(wx.Frame):
 
         self.SetMenuBar(menu_bar)
 
-    def on_quit(self, e):
-        print("on_quit")
+    def handle_quit(self, e):
         self.Close()
 
     def handle_menu_option_general(self, event):
