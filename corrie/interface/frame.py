@@ -103,80 +103,83 @@ class CorrieFrame(wx.Frame):
         weather_hbox.Add(weather_label, 0, wx.ALL, 10)
         weather_hbox.Add(self.weather_filepick, 1, wx.ALL | wx.EXPAND, 10)
 
-        occ_area_box = wx.StaticBox(pnl, -1, "Occupancy Areas (square feet)")
+        occ_area_label = wx.StaticText(pnl, -1, "Occupancy Areas")
+        sqft_label = wx.StaticText(pnl, -1, "(square feet)")
 
-        top_border, other_border = occ_area_box.GetBordersForSizer()
         occ_area_sizer = wx.FlexGridSizer(cols=2, vgap=5, hgap=5)
         occ_area_sizer.AddGrowableCol(0)
         occ_area_sizer.AddGrowableCol(1)
-        occ_area_sizer.AddSpacer(top_border)
-        occ_area_sizer.AddSpacer(top_border)
+        occ_area_sizer.Add(occ_area_label, 0,  wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5)
+        occ_area_sizer.Add(sqft_label, 0, wx.TOP | wx.BOTTOM, 5)
 
         occ_areas = {'Office': 1000, 'Retail': 2000, 'Storage': 1200, 'Dining': 0,
                      'other1': 0, 'other2': 0, 'other3': 0, 'other4': 0}
 
         self.occ_areas_text_controls = {}
         for name, area in occ_areas.items():
-            label = wx.StaticText(occ_area_box, -1, name)
-            self.occ_areas_text_controls[name] = wx.TextCtrl(occ_area_box, -1, str(area), size=(50, -1))
+            label = wx.StaticText(pnl, -1, name)
+            self.occ_areas_text_controls[name] = wx.TextCtrl(pnl, -1, str(area), size=(50, -1))
             occ_area_sizer.Add(label, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5)
             occ_area_sizer.Add(self.occ_areas_text_controls[name], 0, wx.TOP, 5)
 
-        occ_area_sizer.AddSpacer(top_border)
-        occ_area_sizer.AddSpacer(top_border)
-        occ_area_box.SetSizer(occ_area_sizer)
-
-        slides_box = wx.StaticBox(pnl, -1, "Slides")
-        top_border, other_border = occ_area_box.GetBordersForSizer()
-        slides_sizer = wx.BoxSizer(wx.VERTICAL)
+        slides_label = wx.StaticText(pnl, label='Slides')
 
         slide_list_text = ['Aspect Ratio', 'Number of Stories', 'Orientation', 'Wall Insulation', 'Roof Insulation',
                            'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
         slide_list_order = list(range(len(slide_list_text)))
-        slides_sizer.AddSpacer(top_border)
-        self.slide_list = wx.RearrangeCtrl(slides_box, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
+        self.slide_list = wx.RearrangeCtrl(pnl, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slide_list_ctrl = self.slide_list.GetList()
         slide_list_ctrl.SetSelection(0)
 
+        slides_sizer = wx.BoxSizer(wx.VERTICAL)
+        slides_sizer.Add(slides_label, 0, wx.ALL, 10)
         slides_sizer.Add(self.slide_list, 1, wx.ALL | wx.EXPAND, 10)
-        slides_sizer.AddStretchSpacer(1)
+
+        slide_details_box = wx.StaticBox(pnl, -1, "Slide Details for: Aspect Ratio")
+        top_border, other_border = slide_details_box.GetBordersForSizer()
+        slide_details_sizer = wx.BoxSizer(wx.VERTICAL)
+        slide_details_sizer.AddSpacer(top_border)
 
         select_mode_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        select_mode_label = wx.StaticText(slides_box, label='Selection Mode - Aspect Ratio')
+        select_mode_label = wx.StaticText(slide_details_box, label='Selection Mode')
         select_mode_options = ['Automatic', 'Exclude Best Option', 'Exclude Two Best Options',
                                'Exclude Three Best Options', 'Select Option 1', 'Select Option 2', 'Select Option 3',
                                'Select Option 4', 'Select Option 5', 'Select Option 6', 'Select Option 7',
                                'Select Option 8']
-        select_mode_choice = wx.Choice(slides_box, choices=select_mode_options)
+        select_mode_choice = wx.Choice(slide_details_box, choices=select_mode_options)
         select_mode_choice.SetSelection(0)
         select_mode_hbox.Add(select_mode_label, 0, wx.ALL, 5)
         select_mode_hbox.Add(select_mode_choice, 1, wx.ALL, 5)
-        slides_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
+        slide_details_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
 
-        option_simulated_label = wx.StaticText(slides_box, label="Options Simulated - Aspect Ratio")
-        slides_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
+        option_simulated_label = wx.StaticText(slide_details_box, label="Options Simulated")
+        slide_details_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
 
         value_options = ['0.6','0.8','1.0','1.2','1.4','1.6','1.8','2.0']
-        value_choice = wx.CheckListBox(slides_box, 1, size=wx.DefaultSize, choices=value_options)
+        value_choice = wx.CheckListBox(slide_details_box, 1, size=wx.DefaultSize, choices=value_options)
         value_choice.SetSelection(0)
-        slides_sizer.Add(value_choice, 1, wx.ALL, 5)
+        slide_details_sizer.Add(value_choice, 1, wx.ALL, 5)
 
-        incremental_checkbox = wx.CheckBox(slides_box, label='Include in Incremental Improvements - Aspect Ratio')
+        incremental_checkbox = wx.CheckBox(slide_details_box, label='Include in Incremental Improvements')
         incremental_checkbox.SetValue(True)
-        slides_sizer.Add(incremental_checkbox, 0, wx.ALL, 5)
+        slide_details_sizer.Add(incremental_checkbox, 0, wx.ALL, 5)
+        slide_details_box.SetSizer(slide_details_sizer)
 
-        slides_box.SetSizer(slides_sizer)
-
-        run_cancel_sizer = wx.BoxSizer(wx.VERTICAL)
         run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
         cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
+
+        run_cancel_sizer = wx.BoxSizer(wx.HORIZONTAL)
         run_cancel_sizer.Add(run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         run_cancel_sizer.Add(cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
+        bottom_right_sizer = wx.BoxSizer(wx.VERTICAL)
+        bottom_right_sizer.Add(slide_details_box, 1, wx.ALL | wx.ALIGN_TOP |wx.EXPAND, 5)
+        bottom_right_sizer.Add(run_cancel_sizer, 0, wx.ALL | wx.ALIGN_BOTTOM | wx.ALIGN_RIGHT | wx.EXPAND, 5)
+
         bottom_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        bottom_hbox.Add(occ_area_box, 1, wx.ALL|wx.EXPAND, 5)
-        bottom_hbox.Add(slides_box, 2, wx.ALL|wx.EXPAND, 5)
-        bottom_hbox.Add(run_cancel_sizer, 1, wx.ALL | wx.ALIGN_BOTTOM, 5)
+        bottom_hbox.Add(occ_area_sizer, 1, wx.ALL | wx.EXPAND, 5)
+        bottom_hbox.Add(slides_sizer, 2, wx.ALL | wx.EXPAND, 5)
+        bottom_hbox.Add(bottom_right_sizer, 2, wx.ALL | wx.EXPAND, 5)
 
         main_vbox = wx.BoxSizer(wx.VERTICAL)
         main_vbox.Add(building_hbox, 0, wx.EXPAND | wx.LEFT, border=20)
