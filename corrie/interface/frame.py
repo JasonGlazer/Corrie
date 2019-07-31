@@ -17,7 +17,7 @@ class CorrieFrame(wx.Frame):
 
         # Set the title!
         self.SetTitle("Corrie" + '   -   ' + self.current_file_name)
-        self.SetSize(800, 660)
+        self.SetSize(900, 700)
 
         # set the window exit
         self.Bind(wx.EVT_CLOSE, self.handle_frame_close)

@@ -99,6 +99,11 @@
           <line>226</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/corrie/interface/frame.py</url>
+          <line>258</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
