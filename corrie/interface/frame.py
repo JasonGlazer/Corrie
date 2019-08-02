@@ -361,10 +361,10 @@ class CorrieFrame(wx.Frame):
         self.all_slide_details[slide_selected] = [self.select_mode_choice.GetString(self.select_mode_choice.GetSelection()), include_incremental, options_list]
 
     def handle_value_choice_check(self, event):
-        print(self.value_choice.IsChecked(event.GetInt()))
+        #print(self.value_choice.IsChecked(event.GetInt()))
         value_options = []
         for index in range(self.value_choice.GetCount()):
-            print(self.value_choice.GetString(index),self.value_choice.IsChecked(index))
+            #print(self.value_choice.GetString(index),self.value_choice.IsChecked(index))
             value_options.append([self.value_choice.GetString(index),self.value_choice.IsChecked(index)])
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
@@ -430,13 +430,12 @@ class CorrieFrame(wx.Frame):
         save_data['occupancyAreas'] = occ_area_save_data
         slide_list_save_data = {}
         slide_list_ctrl = self.slide_list.GetList()
+        save_data['slideDetails'] = self.all_slide_details
+        slide_names_in_order = []
         for index in range(slide_list_ctrl.GetCount()):
-            slide_list_save_data[index] = [slide_list_ctrl.GetString(index), slide_list_ctrl.IsChecked(index)]
-        save_data['slideList'] = slide_list_save_data
-
-        print(save_data)
+            slide_names_in_order.append(slide_list_ctrl.GetString(index))
+        save_data['slideOrder'] = slide_names_in_order
         print(json.dumps(save_data, indent=4))
-        print(slide_list_ctrl.GetCurrentOrder())
 
     def handle_file_save_as(self, event):
         pass
