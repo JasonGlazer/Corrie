@@ -35,6 +35,10 @@ class CorrieFrame(wx.Frame):
         self.occ_areas_text_controls = None
         self.slide_list = None
         self.slide_details_box = None
+        self.value_choice = None
+        self.select_mode_choice = None
+        self.incremental_checkbox = None
+
 
         self.all_slide_details = self.populate_all_slide_details()
 
@@ -127,8 +131,7 @@ class CorrieFrame(wx.Frame):
 
         slides_label = wx.StaticText(pnl, label='Slides')
 
-        slide_list_text = ['Aspect Ratio', 'Number of Stories', 'Orientation', 'Wall Insulation', 'Roof Insulation',
-                           'Window to wall ratio', 'Fenestration Options', 'Window Overhang', 'Lighting Power Density']
+        slide_list_text = list(self.all_slide_details.keys())
         slide_list_order = list(range(len(slide_list_text)))
         self.slide_list = wx.RearrangeCtrl(pnl, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slide_list_ctrl = self.slide_list.GetList()
@@ -150,23 +153,23 @@ class CorrieFrame(wx.Frame):
                                'Exclude Three Best Options', 'Select Option 1', 'Select Option 2', 'Select Option 3',
                                'Select Option 4', 'Select Option 5', 'Select Option 6', 'Select Option 7',
                                'Select Option 8']
-        select_mode_choice = wx.Choice(self.slide_details_box, choices=select_mode_options)
-        select_mode_choice.SetSelection(0)
+        self.select_mode_choice = wx.Choice(self.slide_details_box, choices=select_mode_options)
+        self.select_mode_choice.SetSelection(0)
         select_mode_hbox.Add(select_mode_label, 0, wx.ALL, 5)
-        select_mode_hbox.Add(select_mode_choice, 1, wx.ALL, 5)
+        select_mode_hbox.Add(self.select_mode_choice, 1, wx.ALL, 5)
         slide_details_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
 
         option_simulated_label = wx.StaticText(self.slide_details_box, label="Options Simulated")
         slide_details_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
 
         value_options = ['0.6','0.8','1.0','1.2','1.4','1.6','1.8','2.0']
-        value_choice = wx.CheckListBox(self.slide_details_box, 1, size=wx.DefaultSize, choices=value_options)
-        value_choice.SetSelection(0)
-        slide_details_sizer.Add(value_choice, 1, wx.ALL, 5)
+        self.value_choice = wx.CheckListBox(self.slide_details_box, 1, size=wx.DefaultSize, choices=value_options)
+        self.value_choice.SetSelection(0)
+        slide_details_sizer.Add(self.value_choice, 1, wx.ALL | wx.EXPAND, 5)
 
-        incremental_checkbox = wx.CheckBox(self.slide_details_box, label='Include in Incremental Improvements')
-        incremental_checkbox.SetValue(True)
-        slide_details_sizer.Add(incremental_checkbox, 0, wx.ALL, 5)
+        self.incremental_checkbox = wx.CheckBox(self.slide_details_box, label='Include in Incremental Improvements')
+        self.incremental_checkbox.SetValue(True)
+        slide_details_sizer.Add(self.incremental_checkbox, 0, wx.ALL, 5)
         self.slide_details_box.SetSizer(slide_details_sizer)
 
         run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
@@ -199,132 +202,152 @@ class CorrieFrame(wx.Frame):
     def populate_all_slide_details(self):
         all_slide_details = {}
         #aspect ratio
-        options = []
-        options.append(["width 1.0 : depth 3.0", True])
-        options.append(["width 1.0 : depth 2.5", False])
-        options.append(["width 1.0 : depth 2.0", True])
-        options.append(["width 1.0 : depth 1.5", False])
-        options.append(["width 1.0 : depth 1.0", True])
-        options.append(["width 1.5 : depth 1.0", False])
-        options.append(["width 2.0 : depth 1.0", True])
-        options.append(["width 2.5 : depth 1.0", False])
-        options.append(["width 3.0 : depth 1.0", True])
-        all_slide_details['Aspect Ratio'] = ['Automatic',True, options]
+        aspect_ratio_options = []
+        aspect_ratio_options.append(["width 1.0 : depth 3.0", True])
+        aspect_ratio_options.append(["width 1.0 : depth 2.5", False])
+        aspect_ratio_options.append(["width 1.0 : depth 2.0", True])
+        aspect_ratio_options.append(["width 1.0 : depth 1.5", False])
+        aspect_ratio_options.append(["width 1.0 : depth 1.0", True])
+        aspect_ratio_options.append(["width 1.5 : depth 1.0", False])
+        aspect_ratio_options.append(["width 2.0 : depth 1.0", True])
+        aspect_ratio_options.append(["width 2.5 : depth 1.0", False])
+        aspect_ratio_options.append(["width 3.0 : depth 1.0", True])
+        all_slide_details['Aspect Ratio'] = ['Automatic',True, aspect_ratio_options]
 
-        options.clear()
-        options.append(["One Floor", True])
-        options.append(["One Floor with Basement", True])
-        options.append(["Two Floors", True])
-        options.append(["Two Floors with Basement", True])
-        options.append(["Three Floors", True])
-        options.append(["Three Floors with Basement", True])
-        options.append(["Four Floors", True])
-        options.append(["Four Floors with Basement", True])
-        all_slide_details['Number of Stories'] = ['Automatic',False, options]
+        stories_options = []
+        stories_options.append(["One Floor", True])
+        stories_options.append(["One Floor with Basement", True])
+        stories_options.append(["Two Floors", True])
+        stories_options.append(["Two Floors with Basement", True])
+        stories_options.append(["Three Floors", True])
+        stories_options.append(["Three Floors with Basement", True])
+        stories_options.append(["Four Floors", True])
+        stories_options.append(["Four Floors with Basement", True])
+        all_slide_details['Number of Stories'] = ['Exclude Best Option',False, stories_options]
 
-        options.clear()
-        options.append(["Entrance Faces North", True])
-        options.append(["Entrance Faces North East", True])
-        options.append(["Entrance Faces East", True])
-        options.append(["Entrance Faces South East", True])
-        options.append(["Entrance Faces South", True])
-        options.append(["Entrance Faces South West", True])
-        options.append(["Entrance Faces West", True])
-        options.append(["Entrance Faces North West", True])
-        all_slide_details['Orientation'] = ['Automatic',False, options]
+        orientation_options = []
+        orientation_options.append(["Entrance Faces North", True])
+        orientation_options.append(["Entrance Faces North East", True])
+        orientation_options.append(["Entrance Faces East", True])
+        orientation_options.append(["Entrance Faces South East", True])
+        orientation_options.append(["Entrance Faces South", True])
+        orientation_options.append(["Entrance Faces South West", True])
+        orientation_options.append(["Entrance Faces West", True])
+        orientation_options.append(["Entrance Faces North West", True])
+        all_slide_details['Orientation'] = ['Automatic',False, orientation_options]
 
-        options.clear()
-        options.append(["Additional R2", True])
-        options.append(["Additional R4", True])
-        options.append(["Additional R6", True])
-        options.append(["Additional R8", True])
-        options.append(["Additional R10", True])
-        options.append(["Additional R12", True])
-        options.append(["Reduced by R2", False])
-        options.append(["Reduced by R4", False])
-        all_slide_details['Wall Insulation'] = ['Automatic',True, options]
+        wall_insulation_options = []
+        wall_insulation_options.append(["Additional R2", True])
+        wall_insulation_options.append(["Additional R4", True])
+        wall_insulation_options.append(["Additional R6", True])
+        wall_insulation_options.append(["Additional R8", True])
+        wall_insulation_options.append(["Additional R10", True])
+        wall_insulation_options.append(["Additional R12", True])
+        wall_insulation_options.append(["Reduced by R2", False])
+        wall_insulation_options.append(["Reduced by R4", False])
+        all_slide_details['Wall Insulation'] = ['Automatic',True, wall_insulation_options]
 
-        options.clear()
-        options.append(["Additional R2", True])
-        options.append(["Additional R4", True])
-        options.append(["Additional R6", True])
-        options.append(["Additional R8", True])
-        options.append(["Additional R10", True])
-        options.append(["Additional R12", True])
-        options.append(["Additional R14", True])
-        options.append(["Additional R16", True])
-        options.append(["Additional R18", True])
-        options.append(["Additional R20", True])
-        options.append(["Reduced by R2", False])
-        options.append(["Reduced by R4", False])
-        options.append(["Reduced by R6", False])
-        all_slide_details['Roof Insulation'] = ['Automatic',True, options]
+        roof_insulation_options = []
+        roof_insulation_options.append(["Additional R2", True])
+        roof_insulation_options.append(["Additional R4", True])
+        roof_insulation_options.append(["Additional R6", True])
+        roof_insulation_options.append(["Additional R8", True])
+        roof_insulation_options.append(["Additional R10", True])
+        roof_insulation_options.append(["Additional R12", True])
+        roof_insulation_options.append(["Additional R14", True])
+        roof_insulation_options.append(["Additional R16", True])
+        roof_insulation_options.append(["Additional R18", True])
+        roof_insulation_options.append(["Additional R20", True])
+        roof_insulation_options.append(["Reduced by R2", False])
+        roof_insulation_options.append(["Reduced by R4", False])
+        roof_insulation_options.append(["Reduced by R6", False])
+        all_slide_details['Roof Insulation'] = ['Automatic',True, roof_insulation_options]
 
-        options.clear()
-        options.append(["Increase 10%", False])
-        options.append(["Increase 8%", False])
-        options.append(["Increase 6%", False])
-        options.append(["Increase 4%", False])
-        options.append(["Increase 2%", False])
-        options.append(["Decrease 2%", True])
-        options.append(["Decrease 4%", True])
-        options.append(["Decrease 6%", True])
-        options.append(["Decrease 8%", True])
-        options.append(["Decrease 10%", True])
-        options.append(["Decrease 12%", True])
-        options.append(["Decrease 14%", True])
-        options.append(["Decrease 16%", True])
-        options.append(["Decrease 18%", True])
-        options.append(["Decrease 20%", True])
-        all_slide_details['Window to wall ratio'] = ['Automatic',True, options]
+        wwr_options = []
+        wwr_options.append(["Increase 10%", False])
+        wwr_options.append(["Increase 8%", False])
+        wwr_options.append(["Increase 6%", False])
+        wwr_options.append(["Increase 4%", False])
+        wwr_options.append(["Increase 2%", False])
+        wwr_options.append(["Decrease 2%", True])
+        wwr_options.append(["Decrease 4%", True])
+        wwr_options.append(["Decrease 6%", True])
+        wwr_options.append(["Decrease 8%", True])
+        wwr_options.append(["Decrease 10%", True])
+        wwr_options.append(["Decrease 12%", True])
+        wwr_options.append(["Decrease 14%", True])
+        wwr_options.append(["Decrease 16%", True])
+        wwr_options.append(["Decrease 18%", True])
+        wwr_options.append(["Decrease 20%", True])
+        all_slide_details['Window to wall ratio'] = ['Automatic',True, wwr_options]
 
-        options.clear()
+        fenestration_options = []
         # from CSBR-UMN (2013) - See MaxTech final report
-        options.append(["U-Factor=0.99 SHGC=0.72 Tvis=0.74", True])
-        options.append(["U-Factor=0.55 SHGC=0.61 Tvis=0.64", True])
-        options.append(["U-Factor=0.55 SHGC=0.45 Tvis=0.39", True])
-        options.append(["U-Factor=0.53 SHGC=0.18 Tvis=0.08", True])
-        options.append(["U-Factor=0.39 SHGC=0.27 Tvis=0.43", True])
-        options.append(["U-Factor=0.39 SHGC=0.23 Tvis=0.30", True])
-        options.append(["U-Factor=0.39 SHGC=0.35 Tvis=0.57", True])
-        options.append(["U-Factor=0.38 SHGC=0.26 Tvis=0.52", True])
-        options.append(["U-Factor=0.22 SHGC=0.28 Tvis=0.49", True])
-        options.append(["U-Factor=0.21 SHGC=0.19 Tvis=0.28", True])
-        options.append(["U-Factor=0.97 SHGC=0.44 Tvis=0.50", True])
-        options.append(["U-Factor=0.55 SHGC=0.48 Tvis=0.44", True])
-        all_slide_details['Fenestration Options'] = ['Automatic',True, options]
+        fenestration_options.append(["U-Factor=0.99 SHGC=0.72 Tvis=0.74", True])
+        fenestration_options.append(["U-Factor=0.55 SHGC=0.61 Tvis=0.64", True])
+        fenestration_options.append(["U-Factor=0.55 SHGC=0.45 Tvis=0.39", True])
+        fenestration_options.append(["U-Factor=0.53 SHGC=0.18 Tvis=0.08", True])
+        fenestration_options.append(["U-Factor=0.39 SHGC=0.27 Tvis=0.43", True])
+        fenestration_options.append(["U-Factor=0.39 SHGC=0.23 Tvis=0.30", True])
+        fenestration_options.append(["U-Factor=0.39 SHGC=0.35 Tvis=0.57", True])
+        fenestration_options.append(["U-Factor=0.38 SHGC=0.26 Tvis=0.52", True])
+        fenestration_options.append(["U-Factor=0.22 SHGC=0.28 Tvis=0.49", True])
+        fenestration_options.append(["U-Factor=0.21 SHGC=0.19 Tvis=0.28", True])
+        fenestration_options.append(["U-Factor=0.97 SHGC=0.44 Tvis=0.50", True])
+        fenestration_options.append(["U-Factor=0.55 SHGC=0.48 Tvis=0.44", True])
+        all_slide_details['Fenestration Options'] = ['Automatic',True, fenestration_options]
 
-        options.clear()
-        options.append(["Depth is 0.2 x Window Height", True])
-        options.append(["Depth is 0.3 x Window Height", True])
-        options.append(["Depth is 0.4 x Window Height", True])
-        options.append(["Depth is 0.5 x Window Height", True])
-        options.append(["Depth is 0.6 x Window Height", True])
-        options.append(["Depth is 0.7 x Window Height", True])
-        options.append(["Depth is 0.8 x Window Height", True])
-        all_slide_details['Window Overhang'] = ['Automatic',True, options]
+        overhang_options = []
+        overhang_options.append(["Depth is 0.2 x Window Height", True])
+        overhang_options.append(["Depth is 0.3 x Window Height", True])
+        overhang_options.append(["Depth is 0.4 x Window Height", True])
+        overhang_options.append(["Depth is 0.5 x Window Height", True])
+        overhang_options.append(["Depth is 0.6 x Window Height", True])
+        overhang_options.append(["Depth is 0.7 x Window Height", True])
+        overhang_options.append(["Depth is 0.8 x Window Height", True])
+        all_slide_details['Window Overhang'] = ['Automatic',True, overhang_options]
 
-        options.clear()
-        options.append(["Reduce 0.05 W/sqft", True])
-        options.append(["Reduce 0.10 W/sqft", True])
-        options.append(["Reduce 0.15 W/sqft", True])
-        options.append(["Reduce 0.20 W/sqft", True])
-        options.append(["Reduce 0.25 W/sqft", True])
-        options.append(["Reduce 0.30 W/sqft", True])
-        options.append(["Reduce 0.35 W/sqft", True])
-        options.append(["Reduce 0.40 W/sqft", True])
-        options.append(["Reduce 0.45 W/sqft", True])
-        options.append(["Reduce 0.50 W/sqft", True])
-        options.append(["Reduce 0.55 W/sqft", True])
-        all_slide_details['Lighting Power Density'] = ['Automatic',True, options]
-
-        print(all_slide_details)
+        lighting_options = []
+        lighting_options.append(["Reduce 0.05 W/sqft", True])
+        lighting_options.append(["Reduce 0.10 W/sqft", True])
+        lighting_options.append(["Reduce 0.15 W/sqft", True])
+        lighting_options.append(["Reduce 0.20 W/sqft", True])
+        lighting_options.append(["Reduce 0.25 W/sqft", True])
+        lighting_options.append(["Reduce 0.30 W/sqft", True])
+        lighting_options.append(["Reduce 0.35 W/sqft", True])
+        lighting_options.append(["Reduce 0.40 W/sqft", True])
+        lighting_options.append(["Reduce 0.45 W/sqft", True])
+        lighting_options.append(["Reduce 0.50 W/sqft", True])
+        lighting_options.append(["Reduce 0.55 W/sqft", True])
+        all_slide_details['Lighting Power Density'] = ['Automatic',True, lighting_options]
         return all_slide_details
 
     def handle_slide_list_ctrl_click(self, event):
         slide_list_ctrl = self.slide_list.GetList()
         #print("clicked on slide: " + slide_list_ctrl.GetString(slide_list_ctrl.GetSelection()))
-        self.slide_details_box.SetLabel("Slide Details for: " + slide_list_ctrl.GetString(slide_list_ctrl.GetSelection()))
+        slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
+        self.slide_details_box.SetLabel("Slide Details for: " + slide_selected)
+        #print(self.all_slide_details[slide_selected])
+        selection_mode, include_incremental, options_list = self.all_slide_details[slide_selected]
+        self.set_slide_details(selection_mode, include_incremental, options_list)
+        print(selection_mode)
+        print(include_incremental)
+        print(options_list)
+
+    def set_slide_details(self, selection_mode, include_incremental, options_list):
+        # set options
+        items_from_list = [x[0] for x in options_list]
+        selected_options = []
+        for option, flag in options_list:
+            if flag:
+                selected_options.append(option)
+        self.value_choice.SetItems(items_from_list)
+        self.value_choice.SetCheckedStrings(selected_options)
+        # set selection mode
+        select_mode_selected_index = self.select_mode_choice.FindString(selection_mode)
+        self.select_mode_choice.SetSelection(select_mode_selected_index)
+        # set incremental choice
+        self.incremental_checkbox.SetValue(include_incremental)
 
     def build_menu(self):
         menu_bar = wx.MenuBar()
