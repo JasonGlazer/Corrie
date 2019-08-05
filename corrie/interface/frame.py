@@ -377,8 +377,8 @@ class CorrieFrame(wx.Frame):
         menu_bar = wx.MenuBar()
 
         file_menu = wx.Menu()
-        menu_file_new = file_menu.Append(101, "&New...", "Create a new Corrie file")
-        menu_file_open = file_menu.Append(102, "&Open", "Open an existing Corrie file")
+        menu_file_new = file_menu.Append(101, "&New", "Create a new Corrie file")
+        menu_file_open = file_menu.Append(102, "&Open...", "Open an existing Corrie file")
         self.Bind(wx.EVT_MENU, self.handle_file_open, menu_file_open)
         file_menu.AppendSeparator()
         menu_file_save = file_menu.Append(103, "&Save\tCtrl-S", "Save file to a same file name")
