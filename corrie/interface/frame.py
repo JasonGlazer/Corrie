@@ -406,7 +406,32 @@ class CorrieFrame(wx.Frame):
         self.Close()
 
     def handle_menu_option_general(self, event):
+
+        columns_of_values_dict = {'Source Energy Use Intensity':True,
+                                  'Site Energy Use Intensity':True,
+                                  'Total Source Energy':True,
+                                  'Total Site Energy':True,
+                                  'Total CO2':True,
+                                  'Cooling Energy':True,
+                                  'Heating Energy':True,
+                                  'Lighting Energy':False,
+                                  'Plug Energy':False,
+                                  'Total Electricity Usage':True,
+                                  'Total Natural Gas Usage':True}
+
+        options_selected = {'Output Metric':'Annual CO2',
+                            'Units':'Inch-Pound',
+                            'Chart Type':'Vertical Column',
+                            'Chart Sort Options':'Ascending',
+                            'Show Cumulative Chart Slide':False,
+                            'Show End Use Pie Chart Slide':True,
+                            'Show End Use Monthly Chart Slide':False,
+                            'Number of Rows Per Slide': '15',
+                            'Tab Name':'CorrieResults',
+                            'Columns of Values':columns_of_values_dict}
+
         dialog_general_options = general_options.GeneralOptionsDialog(None)
+        dialog_general_options.set_parameters(options_selected)
         return_value = dialog_general_options.ShowModal()
         dialog_general_options.Destroy()
 
