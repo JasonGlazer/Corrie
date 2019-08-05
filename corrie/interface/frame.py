@@ -16,7 +16,7 @@ class CorrieFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
 
         # Set the title!
-        self.SetTitle("Corrie" + '   -   ' + self.current_file_name)
+        self.set_window_title_with_filename(self.current_file_name)
         self.SetSize(900, 700)
 
         # set the window exit
@@ -442,13 +442,10 @@ class CorrieFrame(wx.Frame):
                             'Columns of Values':columns_of_values_dict}
         return options_selected
 
-
-
     def handle_file_open(self, event):
         pass
 
-    def handle_file_save(self, event):
-        print("handle_file_save entered")
+    def construct_save_data(self):
         save_data = {}
         save_data['building'] = self.building_choice.GetString(self.building_choice.GetSelection())
         save_data['frontFaces'] = self.front_faces_choice.GetString(self.front_faces_choice.GetSelection())
@@ -469,8 +466,26 @@ class CorrieFrame(wx.Frame):
         for index in range(slide_list_ctrl.GetCount()):
             slide_names_in_order.append(slide_list_ctrl.GetString(index))
         save_data['slideOrder'] = slide_names_in_order
-        print(json.dumps(save_data, indent=4))
+        save_data['generalOptions'] = self.general_options_values
+        #print(json.dumps(save_data, indent=4))
+        return save_data
+
+    def handle_file_save(self, event):
+        #print("handle_file_save entered")
+        save_data = self.construct_save_data()
+        with open(self.current_file_name, 'w') as corrie_file:
+            json.dump(save_data, corrie_file, indent=4)
 
     def handle_file_save_as(self, event):
-        pass
+        with wx.FileDialog(self, "Save Corrie File", wildcard="Corrie files (*.corrie)|*.corrie",
+                           style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return  # the user changed their mind
+            self.current_file_name = fileDialog.GetPath()
+            self.set_window_title_with_filename(self.current_file_name)
+            save_data = self.construct_save_data()
+            with open(self.current_file_name, 'w') as corrie_file:
+                json.dump(save_data, corrie_file, indent=4)
 
+    def set_window_title_with_filename(self, filename):
+        self.SetTitle("Corrie" + '   -   ' + filename)
