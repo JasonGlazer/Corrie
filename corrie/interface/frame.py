@@ -38,9 +38,11 @@ class CorrieFrame(wx.Frame):
         self.value_choice = None
         self.select_mode_choice = None
         self.incremental_checkbox = None
+        self.general_options_values = None
 
 
         self.all_slide_details = self.populate_all_slide_details()
+        self.general_options_values = self.populate_general_options()
 
         self.build_menu()
         self.gui_build()
@@ -406,7 +408,16 @@ class CorrieFrame(wx.Frame):
         self.Close()
 
     def handle_menu_option_general(self, event):
+        dialog_general_options = general_options.GeneralOptionsDialog(None)
+        dialog_general_options.set_parameters(self.general_options_values)
+        return_value = dialog_general_options.ShowModal()
+        if return_value == dialog_general_options.CLOSE_SIGNAL_CANCEL:
+            return
+        else: #ok pressed
+            self.general_options_values = dialog_general_options.general_options_dict
+        dialog_general_options.Destroy()
 
+    def populate_general_options(self):
         columns_of_values_dict = {'Source Energy Use Intensity':True,
                                   'Site Energy Use Intensity':True,
                                   'Total Source Energy':True,
@@ -429,11 +440,9 @@ class CorrieFrame(wx.Frame):
                             'Number of Rows Per Slide': '15',
                             'Tab Name':'CorrieResults',
                             'Columns of Values':columns_of_values_dict}
+        return options_selected
 
-        dialog_general_options = general_options.GeneralOptionsDialog(None)
-        dialog_general_options.set_parameters(options_selected)
-        return_value = dialog_general_options.ShowModal()
-        dialog_general_options.Destroy()
+
 
     def handle_file_open(self, event):
         pass

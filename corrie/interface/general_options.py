@@ -20,6 +20,7 @@ class GeneralOptionsDialog(wx.Dialog):
 
     def __init__(self, *args, **kwargs):
         super(GeneralOptionsDialog, self).__init__(*args, **kwargs)
+        self.Bind(wx.EVT_CLOSE, self.handle_cancel_button)
         self.initialize_ui()
 
     def initialize_ui(self):
@@ -104,8 +105,10 @@ class GeneralOptionsDialog(wx.Dialog):
         dialog_vbox.Add(top_hbox, 0, wx.ALL , 5)
 
         ok_cancel_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        ok_button = wx.Button(pnl, 1, "OK", size=(60, 30))
-        cancel_button = wx.Button(pnl, 1, "Cancel", size=(60, 30))
+        ok_button = wx.Button(pnl, wx.ID_OK , "OK", size=(60, 30))
+        ok_button.Bind(wx.EVT_BUTTON, self.handle_ok_button)
+        cancel_button = wx.Button(pnl, wx.ID_CANCEL, "Cancel", size=(60, 30))
+        cancel_button.Bind(wx.EVT_BUTTON, self.handle_cancel_button)
         ok_cancel_hbox.Add(ok_button, 0, wx.ALL, 5)
         ok_cancel_hbox.Add(cancel_button, 0, wx.ALL, 5)
         dialog_vbox.Add(ok_cancel_hbox, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
@@ -115,7 +118,7 @@ class GeneralOptionsDialog(wx.Dialog):
         self.Fit()
         self.SetTitle("General Options")
 
-    def set_parameters(self,general_options_dict):
+    def set_parameters(self, general_options_dict):
         self.general_options_dict = general_options_dict
 
         selected_index = self.output_metric_choice.FindString(self.general_options_dict['Output Metric'])
@@ -145,3 +148,41 @@ class GeneralOptionsDialog(wx.Dialog):
         for column_item in list_of_columns:
             index = self.columns_of_values_list.FindString(column_item)
             self.columns_of_values_list.Check(index, columns_of_values_dict[column_item])
+
+    def handle_ok_button(self, event):
+        self.save_parameters()
+        self.EndModal(self.CLOSE_SIGNAL_OK)
+
+    def save_parameters(self):
+        self.general_options_dict.clear()
+
+        selected_index = self.output_metric_choice.GetSelection()
+        self.general_options_dict['Output Metric'] = self.output_metric_choice.GetString(selected_index)
+
+        selected_index = self.chart_type_choice.GetSelection()
+        self.general_options_dict['Chart Type'] = self.chart_type_choice.GetString(selected_index)
+
+        selected_index = self.units_choice.GetSelection()
+        self.general_options_dict['Units'] = self.units_choice.GetString(selected_index)
+
+        selected_index = self.sort_option_choice.GetSelection()
+        self.general_options_dict['Chart Sort Options'] = self.sort_option_choice.GetString(selected_index)
+
+        self.general_options_dict['Show Cumulative Chart Slide']= self.show_cumulative_checkbox.GetValue()
+        self.general_options_dict['Show End Use Pie Chart Slide']= self.show_end_use_pie_checkbox.GetValue()
+        self.general_options_dict['Show End Use Monthly Chart Slide']= self.show_end_use_monthly_checkbox.GetValue()
+
+        selected_index = self.num_rows_choice.GetSelection()
+        self.general_options_dict['Number of Rows Per Slide'] = self.num_rows_choice.GetString(selected_index)
+
+        self.general_options_dict['Tab Name'] = self.tab_name_field.GetValue()
+
+        columns_of_values_dict = {}
+        list_of_columns = self.columns_of_values_list.GetItems()
+        for column_item in list_of_columns:
+            index = self.columns_of_values_list.FindString(column_item)
+            columns_of_values_dict[column_item] =  self.columns_of_values_list.IsChecked(index)
+        self.general_options_dict['Columns of Values'] = columns_of_values_dict
+
+    def handle_cancel_button(self, event):
+        self.EndModal(self.CLOSE_SIGNAL_CANCEL)
