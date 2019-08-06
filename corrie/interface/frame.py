@@ -92,21 +92,21 @@ class CorrieFrame(wx.Frame):
         lot_hbox.Add(self.depth_field, 1, wx.ALL | wx.EXPAND, 10)
 
         powerpoint_label = wx.StaticText(pnl, label='PowerPoint File', size=(90, -1))
-        self.powerpoint_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
+        self.powerpoint_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_DEFAULT_STYLE | wx.FLP_SMALL, message='Select the PowerPoint file', wildcard='PowerPoint files (*.pptx)|*.pptx')
 
         powerpoint_hbox = wx.BoxSizer(wx.HORIZONTAL)
         powerpoint_hbox.Add(powerpoint_label, 0, wx.ALL, 10)
         powerpoint_hbox.Add(self.powerpoint_filepick, 1, wx.ALL | wx.EXPAND, 10)
 
         excel_label = wx.StaticText(pnl, label='Excel File', size=(90, -1))
-        self.excel_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
+        self.excel_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_DEFAULT_STYLE | wx.FLP_SMALL, message='Select the Excel file', wildcard='Excel files (*.xlsx)|*.xlsx')
 
         excel_hbox = wx.BoxSizer(wx.HORIZONTAL)
         excel_hbox.Add(excel_label, 0, wx.ALL, 10)
         excel_hbox.Add(self.excel_filepick, 1, wx.ALL | wx.EXPAND, 10)
 
         weather_label = wx.StaticText(pnl, label='Weather File', size=(90, -1))
-        self.weather_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_USE_TEXTCTRL)
+        self.weather_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_DEFAULT_STYLE | wx.FLP_SMALL, message='Select the EnergyPlus Weather file', wildcard='EnergyPlus Weather files (*.epw)|*.epw')
 
         weather_hbox = wx.BoxSizer(wx.HORIZONTAL)
         weather_hbox.Add(weather_label, 0, wx.ALL, 10)
@@ -442,9 +442,6 @@ class CorrieFrame(wx.Frame):
                             'Columns of Values':columns_of_values_dict}
         return options_selected
 
-    def handle_file_open(self, event):
-        pass
-
     def construct_save_data(self):
         save_data = {}
         save_data['building'] = self.building_choice.GetString(self.building_choice.GetSelection())
@@ -489,3 +486,41 @@ class CorrieFrame(wx.Frame):
 
     def set_window_title_with_filename(self, filename):
         self.SetTitle("Corrie" + '   -   ' + filename)
+
+    def handle_file_open(self, event):
+        #if self.contentNotSaved:
+        #    if wx.MessageBox("Current content has not been saved! Proceed?", "Please confirm",
+        #                     wx.ICON_QUESTION | wx.YES_NO, self) == wx.NO:
+        #        return
+        #
+        with wx.FileDialog(self, "Open Corrie File", wildcard="Corrie files (*.corrie)|*.corrie",
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return  # the user changed their mind
+            path_name = fileDialog.GetPath()
+            with open(path_name, 'r') as corrie_file:
+                load_data = json.load(corrie_file)
+                self.read_load_data(load_data)
+                self.current_file_name = path_name
+                self.set_window_title_with_filename(self.current_file_name)
+
+    def read_load_data(self, load_data):
+        print(json.dumps(load_data, indent=4))
+
+        self.building_choice.SetSelection(self.building_choice.FindString(load_data['building']))
+        self.front_faces_choice.SetSelection(self.front_faces_choice.FindString(load_data['frontFaces']))
+        self.baseline_code_choice.SetSelection(self.baseline_code_choice.FindString(load_data['baselineCode']))
+        self.width_field.SetValue(load_data['width'])
+        self.depth_field.SetValue(load_data['depth'])
+        self.powerpoint_filepick.SetPath(load_data['powerpointPath'])
+        self.excel_filepick.SetPath(load_data['excelPath'])
+        self.weather_filepick.SetPath(load_data['weatherPath'])
+        occupancy_area_data = load_data['occupancyAreas']
+        print(occupancy_area_data)
+
+
+
+
+
+
+
