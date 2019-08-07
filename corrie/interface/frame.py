@@ -32,7 +32,7 @@ class CorrieFrame(wx.Frame):
         self.powerpoint_filepick = None
         self.excel_filepick = None
         self.weather_filepick = None
-        self.occ_areas_text_controls = None
+        self.occ_areas_text_controls = []
         self.slide_list = None
         self.slide_details_box = None
         self.value_choice = None
@@ -121,15 +121,16 @@ class CorrieFrame(wx.Frame):
         occ_area_sizer.Add(occ_area_label, 0,  wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5)
         occ_area_sizer.Add(sqft_label, 0, wx.TOP | wx.BOTTOM, 5)
 
-        occ_areas = {'Office': 1000, 'Retail': 2000, 'Storage': 1200, 'Dining': 0,
-                     'other1': 0, 'other2': 0, 'other3': 0, 'other4': 0}
+        max_num_occ_areas = 10
+        for count in range(max_num_occ_areas):
+            label = wx.StaticText(pnl, -1, 'xxxx')
+            text_control = wx.TextCtrl(pnl, -1, '0', size=(50, -1))
+            self.occ_areas_text_controls.append((label, text_control))
+            occ_area_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5) #  wx.ALIGN_RIGHT |
+            occ_area_sizer.Add(text_control, 0, wx.TOP, 5)
 
-        self.occ_areas_text_controls = {}
-        for name, area in occ_areas.items():
-            label = wx.StaticText(pnl, -1, name)
-            self.occ_areas_text_controls[name] = wx.TextCtrl(pnl, -1, str(area), size=(50, -1))
-            occ_area_sizer.Add(label, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5)
-            occ_area_sizer.Add(self.occ_areas_text_controls[name], 0, wx.TOP, 5)
+        occ_areas = {'Office': 1000, 'Retail': 2000, 'Storage': 1200, 'Dining': 0}
+        self.update_occ_areas(occ_areas)
 
         slides_label = wx.StaticText(pnl, label='Slides')
 
@@ -204,6 +205,16 @@ class CorrieFrame(wx.Frame):
 
         pnl.SetSizer(main_vbox)
         pnl.Fit()
+
+    def update_occ_areas(self, occ_areas):
+        for (label, text_control) in self.occ_areas_text_controls:
+            label.SetLabel('')
+            text_control.Show(False)
+        for index, (name, area) in enumerate(occ_areas.items()):
+            label, text_control = self.occ_areas_text_controls[index]
+            label.SetLabel(name)
+            text_control.Show(True)
+            text_control.SetValue(str(area))
 
     def populate_all_slide_details(self):
         all_slide_details = {}
@@ -329,6 +340,9 @@ class CorrieFrame(wx.Frame):
         return all_slide_details
 
     def handle_slide_list_ctrl_click(self, event):
+        self.refresh_slide_list_details()
+
+    def refresh_slide_list_details(self):
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
         self.slide_details_box.SetLabel("Slide Details for: " + slide_selected)
@@ -453,15 +467,15 @@ class CorrieFrame(wx.Frame):
         save_data['excelPath'] = self.excel_filepick.GetPath()
         save_data['weatherPath'] = self.weather_filepick.GetPath()
         occ_area_save_data = {}
-        for name, text_control in self.occ_areas_text_controls.items():
-            occ_area_save_data[name] = text_control.GetValue()
+        for (label, text_control) in self.occ_areas_text_controls:
+            if label.GetLabel():
+                occ_area_save_data[label.GetLabel()] = text_control.GetValue()
         save_data['occupancyAreas'] = occ_area_save_data
-        slide_list_save_data = {}
-        slide_list_ctrl = self.slide_list.GetList()
         save_data['slideDetails'] = self.all_slide_details
+        slide_list_ctrl = self.slide_list.GetList()
         slide_names_in_order = []
         for index in range(slide_list_ctrl.GetCount()):
-            slide_names_in_order.append(slide_list_ctrl.GetString(index))
+            slide_names_in_order.append([slide_list_ctrl.GetString(index),slide_list_ctrl.IsChecked(index)])
         save_data['slideOrder'] = slide_names_in_order
         save_data['generalOptions'] = self.general_options_values
         #print(json.dumps(save_data, indent=4))
@@ -506,7 +520,6 @@ class CorrieFrame(wx.Frame):
 
     def read_load_data(self, load_data):
         print(json.dumps(load_data, indent=4))
-
         self.building_choice.SetSelection(self.building_choice.FindString(load_data['building']))
         self.front_faces_choice.SetSelection(self.front_faces_choice.FindString(load_data['frontFaces']))
         self.baseline_code_choice.SetSelection(self.baseline_code_choice.FindString(load_data['baselineCode']))
@@ -516,11 +529,14 @@ class CorrieFrame(wx.Frame):
         self.excel_filepick.SetPath(load_data['excelPath'])
         self.weather_filepick.SetPath(load_data['weatherPath'])
         occupancy_area_data = load_data['occupancyAreas']
-        print(occupancy_area_data)
-
-
-
-
-
-
-
+        self.update_occ_areas(occupancy_area_data)
+        self.all_slide_details = load_data['slideDetails']
+        slide_list_ctrl = self.slide_list.GetList()
+        slide_list_ctrl.Clear()
+        slide_names_in_order = load_data['slideOrder']
+        for index, (slide_name, slide_checked) in enumerate(slide_names_in_order):
+            slide_list_ctrl.Append(slide_name)
+            slide_list_ctrl.Check(index, slide_checked)
+        slide_list_ctrl.SetSelection(0)
+        self.refresh_slide_list_details()
+        self.general_options_values = load_data['generalOptions']

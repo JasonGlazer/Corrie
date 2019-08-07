@@ -96,7 +96,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/corrie/interface/frame.py</url>
-          <line>412</line>
+          <line>426</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>
