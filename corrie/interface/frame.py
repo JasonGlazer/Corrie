@@ -1,5 +1,6 @@
 import wx
 import json
+import subprocess
 
 from corrie.interface import general_options
 
@@ -179,11 +180,12 @@ class CorrieFrame(wx.Frame):
         slide_details_sizer.Add(self.incremental_checkbox, 0, wx.ALL, 5)
         self.slide_details_box.SetSizer(slide_details_sizer)
 
-        run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
+        self.run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
+        self.run_simulations_button.Bind(wx.EVT_BUTTON, self.handle_run_simulation_button)
         cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
 
         run_cancel_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        run_cancel_sizer.Add(run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+        run_cancel_sizer.Add(self.run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         run_cancel_sizer.Add(cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         bottom_right_sizer = wx.BoxSizer(wx.VERTICAL)
@@ -540,3 +542,8 @@ class CorrieFrame(wx.Frame):
         slide_list_ctrl.SetSelection(0)
         self.refresh_slide_list_details()
         self.general_options_values = load_data['generalOptions']
+
+    def handle_run_simulation_button(self, event):
+        print('handle_run_simulation_button')
+        subprocess.run(['i:/openstudio-2.8.0/bin/openstudio','run','-w', 'workflow-min.osw'], cwd='D:/projects/SBIR SimArchImag/5 SimpleBox/os-test/emptyCLI')
+
