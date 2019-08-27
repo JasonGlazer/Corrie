@@ -1,8 +1,8 @@
 import wx
 import json
-import subprocess
 
 from corrie.interface import general_options
+from corrie.utility.run_simulation import RunSimulation
 
 # wx callbacks need an event argument even though we usually don't use it, so the next line disables that check
 # noinspection PyUnusedLocal
@@ -23,7 +23,7 @@ class CorrieFrame(wx.Frame):
         # set the window exit
         self.Bind(wx.EVT_CLOSE, self.handle_frame_close)
 
-        self.StatusBar = self.CreateStatusBar(1)
+        self.status_bar = self.CreateStatusBar(1)
 
         self.building_choice = None
         self.front_faces_choice = None
@@ -204,6 +204,7 @@ class CorrieFrame(wx.Frame):
         main_vbox.Add(excel_hbox, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
         main_vbox.Add(weather_hbox, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
         main_vbox.Add(bottom_hbox, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
+        main_vbox.Add(self.status_bar,0)
 
         pnl.SetSizer(main_vbox)
         pnl.Fit()
@@ -545,5 +546,17 @@ class CorrieFrame(wx.Frame):
 
     def handle_run_simulation_button(self, event):
         print('handle_run_simulation_button')
-        subprocess.run(['i:/openstudio-2.8.0/bin/openstudio','run','-w', 'workflow-min.osw'], cwd='D:/projects/SBIR SimArchImag/5 SimpleBox/os-test/emptyCLI')
+        self.status_bar.SetStatusText('handle_run_simulation_button')
+        current_save_data = self.construct_save_data()
+        runsim = RunSimulation(current_save_data)
+        sims_to_run = runsim.list_of_simulations()
+        for index, sim in enumerate(sims_to_run):
+            self.status_bar.SetStatusText('{}. Simulation {} of {}'.format(sim, index + 1, len(sims_to_run)))
+            runsim.run_open_studio(sim)
+        results_from_simulations = runsim.collected_results()
+        runsim.populate_excel(results_from_simulations)
+        runsim.populate_powerpoint(results_from_simulations)
+
+        print('simulation complete')
+        self.status_bar.SetStatusText('simulation complete')
 
