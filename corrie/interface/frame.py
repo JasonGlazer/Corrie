@@ -28,8 +28,8 @@ class CorrieFrame(wx.Frame):
         self.building_choice = None
         self.front_faces_choice = None
         self.baseline_code_choice = None
-        self.width_field = None
-        self.depth_field = None
+        #self.width_field = None
+        #self.depth_field = None
         self.powerpoint_filepick = None
         self.excel_filepick = None
         self.weather_filepick = None
@@ -79,18 +79,18 @@ class CorrieFrame(wx.Frame):
         building_hbox.Add(baseline_code_label, 0, wx.ALL, 10)
         building_hbox.Add(self.baseline_code_choice, 1, wx.ALL | wx.EXPAND, 10)
 
-        lot_boundaries_label = wx.StaticText(pnl, label='Lot Boundaries (feet)')
-        width_label = wx.StaticText(pnl, label='Width')
-        self.width_field = wx.TextCtrl(pnl, value="500")
-        depth_label = wx.StaticText(pnl, label='Depth')
-        self.depth_field = wx.TextCtrl(pnl, value="500")
+        #lot_boundaries_label = wx.StaticText(pnl, label='Lot Boundaries (feet)')
+        #width_label = wx.StaticText(pnl, label='Width')
+        #self.width_field = wx.TextCtrl(pnl, value="500")
+        #depth_label = wx.StaticText(pnl, label='Depth')
+        #self.depth_field = wx.TextCtrl(pnl, value="500")
 
-        lot_hbox = wx.BoxSizer(wx.HORIZONTAL)
-        lot_hbox.Add(lot_boundaries_label, 0, wx.ALL, 10)
-        lot_hbox.Add(width_label, 0, wx.ALL, 10)
-        lot_hbox.Add(self.width_field, 1, wx.ALL | wx.EXPAND, 10)
-        lot_hbox.Add(depth_label, 0, wx.ALL, 10)
-        lot_hbox.Add(self.depth_field, 1, wx.ALL | wx.EXPAND, 10)
+        #lot_hbox = wx.BoxSizer(wx.HORIZONTAL)
+        #lot_hbox.Add(lot_boundaries_label, 0, wx.ALL, 10)
+        #lot_hbox.Add(width_label, 0, wx.ALL, 10)
+        #lot_hbox.Add(self.width_field, 1, wx.ALL | wx.EXPAND, 10)
+        #lot_hbox.Add(depth_label, 0, wx.ALL, 10)
+        #lot_hbox.Add(self.depth_field, 1, wx.ALL | wx.EXPAND, 10)
 
         powerpoint_label = wx.StaticText(pnl, label='PowerPoint File', size=(90, -1))
         self.powerpoint_filepick = wx.FilePickerCtrl(pnl, style=wx.FLP_DEFAULT_STYLE | wx.FLP_SMALL, message='Select the PowerPoint file', wildcard='PowerPoint files (*.pptx)|*.pptx')
@@ -199,7 +199,7 @@ class CorrieFrame(wx.Frame):
 
         main_vbox = wx.BoxSizer(wx.VERTICAL)
         main_vbox.Add(building_hbox, 0, wx.EXPAND | wx.LEFT, border=20)
-        main_vbox.Add(lot_hbox, 0, wx.EXPAND | wx.LEFT, border=20)
+        #main_vbox.Add(lot_hbox, 0, wx.EXPAND | wx.LEFT, border=20)
         main_vbox.Add(powerpoint_hbox, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
         main_vbox.Add(excel_hbox, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
         main_vbox.Add(weather_hbox, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
@@ -464,8 +464,8 @@ class CorrieFrame(wx.Frame):
         save_data['building'] = self.building_choice.GetString(self.building_choice.GetSelection())
         save_data['frontFaces'] = self.front_faces_choice.GetString(self.front_faces_choice.GetSelection())
         save_data['baselineCode'] = self.baseline_code_choice.GetString(self.baseline_code_choice.GetSelection())
-        save_data['width'] = self.width_field.GetValue()
-        save_data['depth'] = self.depth_field.GetValue()
+        #save_data['width'] = self.width_field.GetValue()
+        #save_data['depth'] = self.depth_field.GetValue()
         save_data['powerpointPath'] = self.powerpoint_filepick.GetPath()
         save_data['excelPath'] = self.excel_filepick.GetPath()
         save_data['weatherPath'] = self.weather_filepick.GetPath()
@@ -526,8 +526,8 @@ class CorrieFrame(wx.Frame):
         self.building_choice.SetSelection(self.building_choice.FindString(load_data['building']))
         self.front_faces_choice.SetSelection(self.front_faces_choice.FindString(load_data['frontFaces']))
         self.baseline_code_choice.SetSelection(self.baseline_code_choice.FindString(load_data['baselineCode']))
-        self.width_field.SetValue(load_data['width'])
-        self.depth_field.SetValue(load_data['depth'])
+        #self.width_field.SetValue(load_data['width'])
+        #self.depth_field.SetValue(load_data['depth'])
         self.powerpoint_filepick.SetPath(load_data['powerpointPath'])
         self.excel_filepick.SetPath(load_data['excelPath'])
         self.weather_filepick.SetPath(load_data['weatherPath'])
@@ -548,15 +548,15 @@ class CorrieFrame(wx.Frame):
         print('handle_run_simulation_button')
         self.status_bar.SetStatusText('handle_run_simulation_button')
         current_save_data = self.construct_save_data()
-        runsim = RunSimulation(current_save_data)
-        sims_to_run = runsim.list_of_simulations()
-        for index, sim in enumerate(sims_to_run):
-            self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(sim[0],sim[1], index + 1, len(sims_to_run)))
-            runsim.run_open_studio(sim)
-        results_from_simulations = runsim.collected_results()
-        runsim.populate_excel(results_from_simulations)
-        runsim.populate_powerpoint(results_from_simulations)
-
-        print('simulation complete')
-        self.status_bar.SetStatusText('simulation complete')
+        run_simulation = RunSimulation(current_save_data)
+        slides_and_options_to_run = run_simulation.list_of_simulations()
+        for index, slide_and_option in enumerate(slides_and_options_to_run):
+            slide, option = slide_and_option
+            self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide,option, index + 1, len(slides_and_options_to_run)))
+            run_simulation.run_open_studio(slide_and_option)
+        results_from_simulations = run_simulation.collected_results()
+        run_simulation.populate_excel(results_from_simulations)
+        run_simulation.populate_powerpoint(results_from_simulations)
+        print('All simulation complete.')
+        self.status_bar.SetStatusText('All simulation complete.')
 
