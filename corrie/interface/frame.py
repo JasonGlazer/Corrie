@@ -551,7 +551,7 @@ class CorrieFrame(wx.Frame):
         runsim = RunSimulation(current_save_data)
         sims_to_run = runsim.list_of_simulations()
         for index, sim in enumerate(sims_to_run):
-            self.status_bar.SetStatusText('{}. Simulation {} of {}'.format(sim, index + 1, len(sims_to_run)))
+            self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(sim[0],sim[1], index + 1, len(sims_to_run)))
             runsim.run_open_studio(sim)
         results_from_simulations = runsim.collected_results()
         runsim.populate_excel(results_from_simulations)
