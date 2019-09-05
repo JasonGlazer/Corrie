@@ -1,8 +1,10 @@
 import wx
 import json
+import os
 
 from corrie.interface import general_options
 from corrie.utility.run_simulation import RunSimulation
+from corrie.utility.initialize_data import InitializeData
 
 # wx callbacks need an event argument even though we usually don't use it, so the next line disables that check
 # noinspection PyUnusedLocal
@@ -49,16 +51,22 @@ class CorrieFrame(wx.Frame):
         self.gui_build()
         self.Refresh()
 
+        # self.print_standard_paths()
+
     def handle_frame_close(self, event):
         self.Destroy()
 
     def gui_build(self):
         pnl = wx.Panel(self)
 
+        initializer = InitializeData()
+        self.building_dict = initializer.populate_buildings()
+
         building_label = wx.StaticText(pnl, label='Building')
-        building_options = ['Office - Rectangle', 'Retail - Rectangle', 'School - U Shaped', 'School - E Shaped']
+        building_options = list(self.building_dict.keys())
         self.building_choice = wx.Choice(pnl, choices=building_options)
         self.building_choice.SetSelection(0)
+        self.Bind(wx.EVT_CHOICE, self.handle_building_choice_select, self.building_choice)
 
         front_faces_label = wx.StaticText(pnl, label='Front Faces')
         front_faces_option = ['North', 'North East', 'East', 'South East', 'South', 'South West', 'West', 'North West']
@@ -66,8 +74,7 @@ class CorrieFrame(wx.Frame):
         self.front_faces_choice.SetSelection(0)
 
         baseline_code_label = wx.StaticText(pnl, label='Baseline Code')
-        baseline_code_option = ['ASHRAE 90.1-2004', 'ASHRAE 90.1-2007', 'ASHRAE 90.1-2010', 'ASHRAE 90.1-2013',
-                                'ASHRAE 90.1-2016']
+        baseline_code_option = ['', ]
         self.baseline_code_choice = wx.Choice(pnl, choices=baseline_code_option)
         self.baseline_code_choice.SetSelection(0)
 
@@ -124,14 +131,17 @@ class CorrieFrame(wx.Frame):
 
         max_num_occ_areas = 10
         for count in range(max_num_occ_areas):
-            label = wx.StaticText(pnl, -1, 'xxxx')
-            text_control = wx.TextCtrl(pnl, -1, '0', size=(50, -1))
+            label = wx.StaticText(pnl, -1, 'xxxx', size=(150, -1))
+            text_control = wx.TextCtrl(pnl, -1, '0', size=(80, -1))
             self.occ_areas_text_controls.append((label, text_control))
             occ_area_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5) #  wx.ALIGN_RIGHT |
             occ_area_sizer.Add(text_control, 0, wx.TOP, 5)
 
-        occ_areas = {'Office': 1000, 'Retail': 2000, 'Storage': 1200, 'Dining': 0}
+        occ_areas = {'Quick Service Restaurant': 1000, 'Full Service Restaurant': 2000, 'Retail Standalone': 1200, 'junk': 0}
         self.update_occ_areas(occ_areas)
+
+        #call to initialize the screen
+        self.handle_building_choice_select(wx.EVT_CHOICE)
 
         slides_label = wx.StaticText(pnl, label='Slides')
 
@@ -549,14 +559,45 @@ class CorrieFrame(wx.Frame):
         self.status_bar.SetStatusText('handle_run_simulation_button')
         current_save_data = self.construct_save_data()
         run_simulation = RunSimulation(current_save_data)
-        slides_and_options_to_run = run_simulation.list_of_simulations()
+        slides_and_options_to_run = run_simulation.list_of_slides_and_options()
         for index, slide_and_option in enumerate(slides_and_options_to_run):
             slide, option = slide_and_option
-            self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide,option, index + 1, len(slides_and_options_to_run)))
-            run_simulation.run_open_studio(slide_and_option)
+            self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide, option, index + 1, len(slides_and_options_to_run)))
+            run_simulation.run_slide_and_option(slide_and_option)
         results_from_simulations = run_simulation.collected_results()
         run_simulation.populate_excel(results_from_simulations)
         run_simulation.populate_powerpoint(results_from_simulations)
         print('All simulation complete.')
         self.status_bar.SetStatusText('All simulation complete.')
 
+    def print_standard_paths(self):
+        sp = wx.StandardPaths.Get()
+        print("AppDocumentsDir", sp.AppDocumentsDir)
+        print("ConfigDir", sp.ConfigDir)
+        print("DataDir", sp.DataDir)
+        print("DocumentsDir", sp.DocumentsDir)
+        print("ExecutablePath", sp.ExecutablePath)
+        print("InstallPrefix", sp.InstallPrefix)
+        print("LocalDataDir", sp.LocalDataDir)
+        print("PluginsDir", sp.PluginsDir)
+        print("ResourcesDir", sp.ResourcesDir)
+        print("TempDir", sp.TempDir)
+        print("UserConfigDir", sp.UserConfigDir)
+        print("UserDataDir", sp.UserDataDir)
+        print("UserLocalDataDir", sp.UserLocalDataDir)
+        print("current working directory", os.getcwd())
+        print("__file__", os.path.realpath(__file__))
+
+    def handle_building_choice_select(self, event):
+        building_selected = self.building_choice.GetString(self.building_choice.GetSelection())
+        # print(self.building_dict[building_selected].building_type)
+        self.baseline_code_choice.Clear()
+        codes_with_ashrae = ['ASHRAE ' + code for code in self.building_dict[building_selected].codes_available]
+        self.baseline_code_choice.AppendItems(codes_with_ashrae)
+        self.baseline_code_choice.SetSelection(0)
+        _, text_control = self.occ_areas_text_controls[0] #get the current text control so can use existing value of the area
+        occupany_areas = {}
+        occupany_areas[self.building_dict[building_selected].display_string] = text_control.GetValue()
+        for other_building in self.building_dict[building_selected].other_buildings_available:
+            occupany_areas[other_building] = 0
+        self.update_occ_areas(occupany_areas)
