@@ -43,9 +43,13 @@ class RunSimulation(object):
         ""
 
     def create_osw(self, slide_and_option):
+        slide, option = slide_and_option
         work_flow = OpenStudioWorkFlow('../bar-seed.osm')
         work_flow.add_step(OpenStudioStep('ChangeBuildingLocation','dg-ChangeBuildingLocation',
                                           {"weather_file_name" : self.saved_data['weatherPath']}))
+        width_depth_ratio = 1.0
+        if slide == 'Aspect Ratio':
+            width_depth_ratio = argument_from_aspect_ratio_option['option']
         arguments = {"bldg_type_a" : "MediumOffice",
             "ns_to_ew_ratio" : 0.9,
             "num_stories_above_grade" : 2,
@@ -56,7 +60,6 @@ class RunSimulation(object):
         work_flow.add_step((OpenStudioStep('OpenStudio Results', 'OpenStudioResults',{})))
         workflow_dictionary = work_flow.return_workflow_dictionary()
         # print(json.dumps(workflow_dictionary, indent=4))
-        slide, option = slide_and_option
         osw_name = "{}__{}".format(slide, option)
         osw_name = self.remove_invalid_file_characters(osw_name) + ".osw"
         osw_file_name_path = os.path.join('C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed', osw_name)
