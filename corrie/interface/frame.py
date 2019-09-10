@@ -233,123 +233,119 @@ class CorrieFrame(wx.Frame):
         all_slide_details = {}
         #aspect ratio
         aspect_ratio_options = []
-        aspect_ratio_options.append(["width 1.0 : depth 3.0", True])
-        aspect_ratio_options.append(["width 1.0 : depth 2.5", False])
-        aspect_ratio_options.append(["width 1.0 : depth 2.0", True])
-        aspect_ratio_options.append(["width 1.0 : depth 1.5", False])
-        aspect_ratio_options.append(["width 1.0 : depth 1.0", True])
-        aspect_ratio_options.append(["width 1.5 : depth 1.0", False])
-        aspect_ratio_options.append(["width 2.0 : depth 1.0", True])
-        aspect_ratio_options.append(["width 2.5 : depth 1.0", False])
-        aspect_ratio_options.append(["width 3.0 : depth 1.0", True])
-        all_slide_details['Aspect Ratio'] = ['Automatic',True, aspect_ratio_options]
+        aspect_ratio_options.append(["width 1.0 : depth 3.0", True, '0.33'])
+        aspect_ratio_options.append(["width 1.0 : depth 2.5", False, '0.40'])
+        aspect_ratio_options.append(["width 1.0 : depth 2.0", True, '0.50'])
+        aspect_ratio_options.append(["width 1.0 : depth 1.5", False, '0.67'])
+        aspect_ratio_options.append(["width 1.0 : depth 1.0 (square)", True, '1.00'])
+        aspect_ratio_options.append(["width 1.5 : depth 1.0", False, '1.5'])
+        aspect_ratio_options.append(["width 2.0 : depth 1.0", True, '2.0'])
+        aspect_ratio_options.append(["width 2.5 : depth 1.0", False, '2.5'])
+        aspect_ratio_options.append(["width 3.0 : depth 1.0", True, '3.0'])
+        all_slide_details['Aspect Ratio'] = ['Automatic',True, aspect_ratio_options, [('CreateBarFromBuildingTypeRatios','ns_to_ew_ratio'),]]
 
         stories_options = []
-        stories_options.append(["One Floor", True])
-        stories_options.append(["One Floor with Basement", False])
-        stories_options.append(["Two Floors", True])
-        stories_options.append(["Two Floors with Basement", False])
-        stories_options.append(["Three Floors", True])
-        stories_options.append(["Three Floors with Basement", False])
-        stories_options.append(["Four Floors", False])
-        stories_options.append(["Four Floors with Basement", False])
-        all_slide_details['Number of Stories'] = ['Exclude Best Option',False, stories_options]
+        stories_options.append(["One Floor", True, '1'])
+        stories_options.append(["Two Floors", True, '2'])
+        stories_options.append(["Three Floors", True, '3'])
+        stories_options.append(["Four Floors", False, '4'])
+        all_slide_details['Number of Stories'] = ['Exclude Best Option',False, stories_options, [('CreateBarFromBuildingTypeRatios','num_stories_above_grade'),]]
 
         orientation_options = []
-        orientation_options.append(["Entrance Faces North", True])
-        orientation_options.append(["Entrance Faces North East", False])
-        orientation_options.append(["Entrance Faces East", True])
-        orientation_options.append(["Entrance Faces South East", False])
-        orientation_options.append(["Entrance Faces South", True])
-        orientation_options.append(["Entrance Faces South West", False])
-        orientation_options.append(["Entrance Faces West", True])
-        orientation_options.append(["Entrance Faces North West", False])
-        all_slide_details['Orientation'] = ['Automatic',False, orientation_options]
+        orientation_options.append(["Entrance Faces North", True, '0'])
+        orientation_options.append(["Entrance Faces North East", False, '45'])
+        orientation_options.append(["Entrance Faces East", True, '90'])
+        orientation_options.append(["Entrance Faces South East", False, '135'])
+        orientation_options.append(["Entrance Faces South", True, '180'])
+        orientation_options.append(["Entrance Faces South West", False, '225'])
+        orientation_options.append(["Entrance Faces West", True, '270'])
+        orientation_options.append(["Entrance Faces North West", False, '315'])
+        all_slide_details['Orientation'] = ['Automatic',False, orientation_options, [('CreateBarFromBuildingTypeRatios','building_rotation'),]]
 
         wall_insulation_options = []
-        wall_insulation_options.append(["Additional R2", False])
-        wall_insulation_options.append(["Additional R4", True])
-        wall_insulation_options.append(["Additional R6", False])
-        wall_insulation_options.append(["Additional R8", True])
-        wall_insulation_options.append(["Additional R10", False])
-        wall_insulation_options.append(["Additional R12", True])
-        wall_insulation_options.append(["Reduced by R2", False])
-        wall_insulation_options.append(["Reduced by R4", False])
-        all_slide_details['Wall Insulation'] = ['Automatic',True, wall_insulation_options]
+        wall_insulation_options.append(["R15", False, '15'])
+        wall_insulation_options.append(["R17", False, '17'])
+        wall_insulation_options.append(["R19", True, '19'])
+        wall_insulation_options.append(["R23", True, '23'])
+        wall_insulation_options.append(["R27", True, '27'])
+        wall_insulation_options.append(["R31", False, '31'])
+        wall_insulation_options.append(["R35", False, '35'])
+        all_slide_details['Wall Insulation'] = ['Automatic', True, wall_insulation_options, [('IncreaseInsulationRValueForExteriorWalls','r_value'),]]
 
         roof_insulation_options = []
-        roof_insulation_options.append(["Additional R2", False])
-        roof_insulation_options.append(["Additional R4", True])
-        roof_insulation_options.append(["Additional R6", False])
-        roof_insulation_options.append(["Additional R8", True])
-        roof_insulation_options.append(["Additional R10", False])
-        roof_insulation_options.append(["Additional R12", True])
-        roof_insulation_options.append(["Additional R14", False])
-        roof_insulation_options.append(["Additional R16", True])
-        roof_insulation_options.append(["Additional R18", False])
-        roof_insulation_options.append(["Additional R20", True])
-        roof_insulation_options.append(["Reduced by R2", False])
-        roof_insulation_options.append(["Reduced by R4", False])
-        roof_insulation_options.append(["Reduced by R6", False])
-        all_slide_details['Roof Insulation'] = ['Automatic',True, roof_insulation_options]
+        roof_insulation_options.append(["R25", False, '25'])
+        roof_insulation_options.append(["R29", True, '29'])
+        roof_insulation_options.append(["R33", True, '33'])
+        roof_insulation_options.append(["R37", True, '37'])
+        roof_insulation_options.append(["R41", True, '41'])
+        roof_insulation_options.append(["R45", True, '45'])
+        roof_insulation_options.append(["R50", False, '50'])
+        roof_insulation_options.append(["R55", False, '55'])
+        roof_insulation_options.append(["R60", False, '60'])
+        all_slide_details['Roof Insulation'] = ['Automatic', True, roof_insulation_options, [('IncreaseInsulationRValueForRoofs','r_value'),]]
 
         wwr_options = []
-        wwr_options.append(["Increase 10%", False])
-        wwr_options.append(["Increase 8%", False])
-        wwr_options.append(["Increase 6%", False])
-        wwr_options.append(["Increase 4%", False])
-        wwr_options.append(["Increase 2%", False])
-        wwr_options.append(["Decrease 2%", True])
-        wwr_options.append(["Decrease 4%", False])
-        wwr_options.append(["Decrease 6%", True])
-        wwr_options.append(["Decrease 8%", False])
-        wwr_options.append(["Decrease 10%", True])
-        wwr_options.append(["Decrease 12%", False])
-        wwr_options.append(["Decrease 14%", False])
-        wwr_options.append(["Decrease 16%", False])
-        wwr_options.append(["Decrease 18%", False])
-        wwr_options.append(["Decrease 20%", False])
-        all_slide_details['Window to wall ratio'] = ['Automatic',True, wwr_options]
+        wwr_options.append(["2%", False, '0.02'])
+        wwr_options.append(["4%", False, '0.04'])
+        wwr_options.append(["6%", False, '0.06'])
+        wwr_options.append(["8%", False, '0.08'])
+        wwr_options.append(["10%", False, '0.10'])
+        wwr_options.append(["15%", False, '0.15'])
+        wwr_options.append(["20%", False, '0.20'])
+        wwr_options.append(["25%", True, '0.25'])
+        wwr_options.append(["30%", True, '0.30'])
+        wwr_options.append(["35%", True, '0.35'])
+        wwr_options.append(["40%", True, '0.40'])
+        wwr_options.append(["45%", True, '0.45'])
+        wwr_options.append(["50%", True, '0.50'])
+        wwr_options.append(["60%", False, '0.60'])
+        wwr_options.append(["70%", False, '0.70'])
+        wwr_options.append(["80%", False, '0.80'])
+        all_slide_details['Window to wall ratio'] = ['Automatic', True, wwr_options, [('CreateBarFromBuildingTypeRatios','wwr'),]]
 
-        fenestration_options = []
-        # from CSBR-UMN (2013) - See MaxTech final report
-        fenestration_options.append(["U-Factor=0.99 SHGC=0.72 Tvis=0.74", False])
-        fenestration_options.append(["U-Factor=0.55 SHGC=0.61 Tvis=0.64", False])
-        fenestration_options.append(["U-Factor=0.55 SHGC=0.45 Tvis=0.39", False])
-        fenestration_options.append(["U-Factor=0.53 SHGC=0.18 Tvis=0.08", False])
-        fenestration_options.append(["U-Factor=0.39 SHGC=0.27 Tvis=0.43", True])
-        fenestration_options.append(["U-Factor=0.39 SHGC=0.23 Tvis=0.30", False])
-        fenestration_options.append(["U-Factor=0.39 SHGC=0.35 Tvis=0.57", True])
-        fenestration_options.append(["U-Factor=0.38 SHGC=0.26 Tvis=0.52", True])
-        fenestration_options.append(["U-Factor=0.22 SHGC=0.28 Tvis=0.49", True])
-        fenestration_options.append(["U-Factor=0.21 SHGC=0.19 Tvis=0.28", False])
-        fenestration_options.append(["U-Factor=0.97 SHGC=0.44 Tvis=0.50", True])
-        fenestration_options.append(["U-Factor=0.55 SHGC=0.48 Tvis=0.44", True])
-        all_slide_details['Fenestration Options'] = ['Automatic',True, fenestration_options]
+#        fenestration_options = []
+#        # from CSBR-UMN (2013) - See MaxTech final report
+#        fenestration_options.append(["U-Factor=0.99 SHGC=0.72 Tvis=0.74", False])
+#        fenestration_options.append(["U-Factor=0.55 SHGC=0.61 Tvis=0.64", False])
+#        fenestration_options.append(["U-Factor=0.55 SHGC=0.45 Tvis=0.39", False])
+#        fenestration_options.append(["U-Factor=0.53 SHGC=0.18 Tvis=0.08", False])
+#        fenestration_options.append(["U-Factor=0.39 SHGC=0.27 Tvis=0.43", True])
+#        fenestration_options.append(["U-Factor=0.39 SHGC=0.23 Tvis=0.30", False])
+#        fenestration_options.append(["U-Factor=0.39 SHGC=0.35 Tvis=0.57", True])
+#        fenestration_options.append(["U-Factor=0.38 SHGC=0.26 Tvis=0.52", True])
+#        fenestration_options.append(["U-Factor=0.22 SHGC=0.28 Tvis=0.49", True])
+#        fenestration_options.append(["U-Factor=0.21 SHGC=0.19 Tvis=0.28", False])
+#        fenestration_options.append(["U-Factor=0.97 SHGC=0.44 Tvis=0.50", True])
+#        fenestration_options.append(["U-Factor=0.55 SHGC=0.48 Tvis=0.44", True])
+#        all_slide_details['Fenestration Options'] = ['Automatic',True, fenestration_options]
 
         overhang_options = []
-        overhang_options.append(["Depth is 0.2 x Window Height", True])
-        overhang_options.append(["Depth is 0.3 x Window Height", False])
-        overhang_options.append(["Depth is 0.4 x Window Height", True])
-        overhang_options.append(["Depth is 0.5 x Window Height", False])
-        overhang_options.append(["Depth is 0.6 x Window Height", True])
-        overhang_options.append(["Depth is 0.7 x Window Height", False])
-        overhang_options.append(["Depth is 0.8 x Window Height", True])
-        all_slide_details['Window Overhang'] = ['Automatic',True, overhang_options]
+        overhang_options.append(["Depth is 0.2 x Window Height", True, '0.2'])
+        overhang_options.append(["Depth is 0.3 x Window Height", False, '0.3'])
+        overhang_options.append(["Depth is 0.4 x Window Height", True, '0.4'])
+        overhang_options.append(["Depth is 0.5 x Window Height", False, '0.5'])
+        overhang_options.append(["Depth is 0.6 x Window Height", True, '0.6'])
+        overhang_options.append(["Depth is 0.7 x Window Height", False, '0.7'])
+        overhang_options.append(["Depth is 0.8 x Window Height", True, '0.8'])
+        # note also have to have arguments "facade" : "All", "function" : "Add"
+        all_slide_details['Window Overhang'] = ['Automatic',True, overhang_options, [('AddRemoveOrReplaceWindowOverhangs','projection_factor'),]]
 
         lighting_options = []
-        lighting_options.append(["Reduce 0.05 W/sqft", False])
-        lighting_options.append(["Reduce 0.10 W/sqft", True])
-        lighting_options.append(["Reduce 0.15 W/sqft", False])
-        lighting_options.append(["Reduce 0.20 W/sqft", True])
-        lighting_options.append(["Reduce 0.25 W/sqft", False])
-        lighting_options.append(["Reduce 0.30 W/sqft", True])
-        lighting_options.append(["Reduce 0.35 W/sqft", False])
-        lighting_options.append(["Reduce 0.40 W/sqft", True])
-        lighting_options.append(["Reduce 0.45 W/sqft", False])
-        lighting_options.append(["Reduce 0.50 W/sqft", False])
-        lighting_options.append(["Reduce 0.55 W/sqft", False])
-        all_slide_details['Lighting Power Density'] = ['Automatic',True, lighting_options]
+        lighting_options.append(["0.40 W/sqft", False, '0.40'])
+        lighting_options.append(["0.45 W/sqft", False, '0.45'])
+        lighting_options.append(["0.50 W/sqft", False, '0.50'])
+        lighting_options.append(["0.55 W/sqft", False, '0.55'])
+        lighting_options.append(["0.60 W/sqft", True, '0.60'])
+        lighting_options.append(["0.65 W/sqft", False, '0.65'])
+        lighting_options.append(["0.70 W/sqft", True, '0.70'])
+        lighting_options.append(["0.75 W/sqft", False, '0.75'])
+        lighting_options.append(["0.80 W/sqft", True, '0.80'])
+        lighting_options.append(["0.85 W/sqft", False, '0.85'])
+        lighting_options.append(["0.90 W/sqft", False, '0.90'])
+        lighting_options.append(["0.95 W/sqft", False, '0.95'])
+        lighting_options.append(["1.00 W/sqft", False, '1.00'])
+        lighting_options.append(["1.05 W/sqft", False, '1.05'])
+        all_slide_details['Lighting Power Density'] = ['Automatic',True, lighting_options, [('SetLightingLoadsByLPD','lpd'),]]
         return all_slide_details
 
     def handle_slide_list_ctrl_click(self, event):
