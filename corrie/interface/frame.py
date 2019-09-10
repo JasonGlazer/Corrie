@@ -1,6 +1,8 @@
 import wx
 import json
 import os
+from pubsub import pub
+
 
 from corrie.interface import general_options
 from corrie.utility.run_simulation import RunSimulation
@@ -17,6 +19,8 @@ class CorrieFrame(wx.Frame):
         kwargs["style"] = wx.DEFAULT_FRAME_STYLE
 
         wx.Frame.__init__(self, *args, **kwargs)
+
+        pub.subscribe(self.listener_update_statusbar, "listenerUpdateStatusBar")
 
         # Set the title!
         self.set_window_title_with_filename(self.current_file_name)
@@ -558,7 +562,7 @@ class CorrieFrame(wx.Frame):
         slides_and_options_to_run = run_simulation.list_of_slides_and_options()
         for index, slide_and_option in enumerate(slides_and_options_to_run):
             slide, option = slide_and_option
-            self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide, option, index + 1, len(slides_and_options_to_run)))
+            #self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide, option, index + 1, len(slides_and_options_to_run)))
             run_simulation.run_slide_and_option(slide_and_option)
         results_from_simulations = run_simulation.collected_results()
         run_simulation.populate_excel(results_from_simulations)
@@ -597,3 +601,6 @@ class CorrieFrame(wx.Frame):
         for other_building in self.building_dict[building_selected].other_buildings_available:
             occupany_areas[other_building] = 0
         self.update_occ_areas(occupany_areas)
+
+    def listener_update_statusbar(self, message):
+        self.status_bar.SetStatusText(message)

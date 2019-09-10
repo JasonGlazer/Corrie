@@ -2,6 +2,7 @@ import os
 import time
 import subprocess
 import json
+from pubsub import pub
 
 from corrie.utility.openstudio_workflow import OpenStudioStep
 from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
@@ -11,14 +12,17 @@ class RunSimulation(object):
     def __init__(self, saved_data):
         self.saved_data = saved_data
         print(saved_data)
+        self.slide_selection_option = {}
 
     def list_of_slides_and_options(self):
         slides_and_options = []
+        slides_in_order = []
         slide_details = self.saved_data['slideDetails']
         slide_order = self.saved_data['slideOrder']
         for slide_name, should_run in slide_order:
             if should_run:
                 selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
+                self.slide_selection_option[slide_name] = '' # to begin with don't select any option for each slide
                 for option_name, enabled_option, argument_value in options_list:
                     if enabled_option:
                         slides_and_options.append((slide_name, option_name))
@@ -39,6 +43,11 @@ class RunSimulation(object):
         #subprocess.run(['I:/openstudio-2.8.1-cli-only/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='D:/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test02_cli')
         #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test02_cli')
         self.create_osw(slide_and_option)
+        slide, option = slide_and_option
+
+        pub.sendMessage('listenerUpdateStatusBar', message='{} --- {}'.format(slide, option))
+        # self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide, option, index + 1, len(slides_and_options_to_run)))
+
         #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test03_cli')
         ""
 
