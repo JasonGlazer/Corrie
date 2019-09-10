@@ -18,8 +18,8 @@ class RunSimulation(object):
         slide_order = self.saved_data['slideOrder']
         for slide_name, should_run in slide_order:
             if should_run:
-                selection_mode, include_incremental, options = slide_details[slide_name]
-                for option_name, enabled_option in options:
+                selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
+                for option_name, enabled_option, argument_value in options_list:
                     if enabled_option:
                         slides_and_options.append((slide_name, option_name))
         #for sim in sim_names:
@@ -48,8 +48,8 @@ class RunSimulation(object):
         work_flow.add_step(OpenStudioStep('ChangeBuildingLocation','dg-ChangeBuildingLocation',
                                           {"weather_file_name" : self.saved_data['weatherPath']}))
         width_depth_ratio = 1.0
-        if slide == 'Aspect Ratio':
-            width_depth_ratio = argument_from_aspect_ratio_option['option']
+#        if slide == 'Aspect Ratio':
+#            width_depth_ratio = argument_from_aspect_ratio_option['option']
         arguments = {"bldg_type_a" : "MediumOffice",
             "ns_to_ew_ratio" : 0.9,
             "num_stories_above_grade" : 2,

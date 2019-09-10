@@ -183,7 +183,7 @@ class CorrieFrame(wx.Frame):
         slide_details_sizer.Add(self.value_choice, 1, wx.ALL | wx.EXPAND, 5)
 
         self.incremental_checkbox = wx.CheckBox(self.slide_details_box, label='Include in Incremental Improvements')
-        selection_mode, include_incremental, options_list = self.all_slide_details[slide_list_ctrl.GetString((slide_list_ctrl.GetSelection()))]
+        selection_mode, include_incremental, options_list, osw_list = self.all_slide_details[slide_list_ctrl.GetString((slide_list_ctrl.GetSelection()))]
         self.set_slide_details(selection_mode, include_incremental, options_list)
         self.Bind(wx.EVT_CHECKBOX, self.handle_incremental_checkbox_check, self.incremental_checkbox)
 
@@ -355,14 +355,14 @@ class CorrieFrame(wx.Frame):
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
         self.slide_details_box.SetLabel("Slide Details for: " + slide_selected)
-        selection_mode, include_incremental, options_list = self.all_slide_details[slide_selected]
+        selection_mode, include_incremental, options_list, osw_list = self.all_slide_details[slide_selected]
         self.set_slide_details(selection_mode, include_incremental, options_list)
 
     def set_slide_details(self, selection_mode, include_incremental, options_list):
         # set options
         items_from_list = [x[0] for x in options_list]
         selected_options = []
-        for option, flag in options_list:
+        for option, flag, argument_value in options_list:
             if flag:
                 selected_options.append(option)
         self.value_choice.SetItems(items_from_list)
@@ -376,14 +376,14 @@ class CorrieFrame(wx.Frame):
     def handle_incremental_checkbox_check(self, event):
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
-        selection_mode, include_incremental, options_list = self.all_slide_details[slide_selected]
-        self.all_slide_details[slide_selected] = [selection_mode, self.incremental_checkbox.GetValue(), options_list]
+        selection_mode, include_incremental, options_list, osw_list = self.all_slide_details[slide_selected]
+        self.all_slide_details[slide_selected] = [selection_mode, self.incremental_checkbox.GetValue(), options_list, osw_list]
 
     def handle_select_mode_choice_select(self, event):
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
-        selection_mode, include_incremental, options_list = self.all_slide_details[slide_selected]
-        self.all_slide_details[slide_selected] = [self.select_mode_choice.GetString(self.select_mode_choice.GetSelection()), include_incremental, options_list]
+        selection_mode, include_incremental, options_list, osw_list = self.all_slide_details[slide_selected]
+        self.all_slide_details[slide_selected] = [self.select_mode_choice.GetString(self.select_mode_choice.GetSelection()), include_incremental, options_list, osw_list]
 
     def handle_value_choice_check(self, event):
         #print(self.value_choice.IsChecked(event.GetInt()))
@@ -393,8 +393,8 @@ class CorrieFrame(wx.Frame):
             value_options.append([self.value_choice.GetString(index),self.value_choice.IsChecked(index)])
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
-        selection_mode, include_incremental, options_list = self.all_slide_details[slide_selected]
-        self.all_slide_details[slide_selected] = [selection_mode, include_incremental, value_options]
+        selection_mode, include_incremental, options_list, osw_list = self.all_slide_details[slide_selected]
+        self.all_slide_details[slide_selected] = [selection_mode, include_incremental, value_options, osw_list]
 
     def build_menu(self):
         menu_bar = wx.MenuBar()
