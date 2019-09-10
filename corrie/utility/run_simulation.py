@@ -14,9 +14,9 @@ class RunSimulation(object):
         print(saved_data)
         self.slide_selection_option = {}
 
+    #deprecate??
     def list_of_slides_and_options(self):
         slides_and_options = []
-        slides_in_order = []
         slide_details = self.saved_data['slideDetails']
         slide_order = self.saved_data['slideOrder']
         for slide_name, should_run in slide_order:
@@ -30,6 +30,7 @@ class RunSimulation(object):
         #    print(sim)
         return slides_and_options
 
+    #deprecate??
     def run_slide_and_option(self, slide_and_option):
         time.sleep(1)
 
@@ -50,6 +51,30 @@ class RunSimulation(object):
 
         #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test03_cli')
         ""
+
+    def run_simulations(self):
+        slide_details = self.saved_data['slideDetails']
+        slide_order = self.saved_data['slideOrder']
+        #determine number of total simulations
+        total_simulation_count = 0
+        for slide_name, should_run in slide_order:
+            if should_run:
+                selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
+                for option_name, enabled_option, argument_value in options_list:
+                    if enabled_option:
+                        total_simulation_count = total_simulation_count + 1
+        # now perform actual simulations
+        count = 0
+        for slide_name, should_run in slide_order:
+            if should_run:
+                selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
+                for option_name, enabled_option, argument_value in options_list:
+                    if enabled_option:
+                        count = count + 1
+                        pub.sendMessage('listenerUpdateStatusBar', message='Simulation {} of {}:  {} >>> {} '.format(count, total_simulation_count, slide_name, option_name))
+                        slides_and_option = (slide_name, option_name)
+                        time.sleep(1)
+                        self.create_osw(slides_and_option)
 
     def create_osw(self, slide_and_option):
         slide, option = slide_and_option
