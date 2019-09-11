@@ -7,6 +7,7 @@ from pubsub import pub
 from corrie.utility.openstudio_workflow import OpenStudioStep
 from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
 
+
 class RunSimulation(object):
 
     def __init__(self, saved_data):
@@ -14,48 +15,10 @@ class RunSimulation(object):
         print(saved_data)
         self.slide_selection_option = {}
 
-    #deprecate??
-    def list_of_slides_and_options(self):
-        slides_and_options = []
-        slide_details = self.saved_data['slideDetails']
-        slide_order = self.saved_data['slideOrder']
-        for slide_name, should_run in slide_order:
-            if should_run:
-                selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
-                self.slide_selection_option[slide_name] = '' # to begin with don't select any option for each slide
-                for option_name, enabled_option, argument_value in options_list:
-                    if enabled_option:
-                        slides_and_options.append((slide_name, option_name))
-        #for sim in sim_names:
-        #    print(sim)
-        return slides_and_options
-
-    #deprecate??
-    def run_slide_and_option(self, slide_and_option):
-        time.sleep(1)
-
-        # osw_file_name, results_path = setup_open_studio_workflow_file(sim_name)
-        # run_openstudio(osw_file_name, working_path, openstudio_path)
-        # simulation_results = extract_results(results_path)
-        # collect_results.append(sim_name, simulation_results)
-        # - after this populate the excel and powerpoint files
-
-        #subprocess.run(['i:/openstudio-2.8.0/bin/openstudio','run','-w', 'workflow-min.osw'], cwd='D:/projects/SBIR SimArchImag/5 SimpleBox/os-test/emptyCLI')
-        #subprocess.run(['I:/openstudio-2.8.1-cli-only/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='D:/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test02_cli')
-        #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test02_cli')
-        self.create_osw(slide_and_option)
-        slide, option = slide_and_option
-
-        pub.sendMessage('listenerUpdateStatusBar', message='{} --- {}'.format(slide, option))
-        # self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide, option, index + 1, len(slides_and_options_to_run)))
-
-        #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test03_cli')
-        ""
-
     def run_simulations(self):
         slide_details = self.saved_data['slideDetails']
         slide_order = self.saved_data['slideOrder']
-        #determine number of total simulations
+        # determine number of total simulations
         total_simulation_count = 0
         for slide_name, should_run in slide_order:
             if should_run:
@@ -75,22 +38,20 @@ class RunSimulation(object):
                         slides_and_option = (slide_name, option_name)
                         time.sleep(1)
                         self.create_osw(slides_and_option)
+                        # subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test03_cli')
 
     def create_osw(self, slide_and_option):
         slide, option = slide_and_option
         work_flow = OpenStudioWorkFlow('../bar-seed.osm')
         work_flow.add_step(OpenStudioStep('ChangeBuildingLocation','dg-ChangeBuildingLocation',
                                           {"weather_file_name" : self.saved_data['weatherPath']}))
-        width_depth_ratio = 1.0
-#        if slide == 'Aspect Ratio':
-#            width_depth_ratio = argument_from_aspect_ratio_option['option']
         arguments = {"bldg_type_a" : "MediumOffice",
             "ns_to_ew_ratio" : 0.9,
             "num_stories_above_grade" : 2,
             "template" : self.saved_data['baselineCode'],
             "total_bldg_floor_area" : 11000,
             "wwr" : 0.33}
-        work_flow.add_step(OpenStudioStep('Create Bar From Building Type Ratios','CreateBarFromBuildingTypeRatios',arguments))
+        work_flow.add_step(OpenStudioStep('Create Bar From Building Type Ratios','CreateBarFromBuildingTypeRatios', arguments))
         work_flow.add_step((OpenStudioStep('OpenStudio Results', 'OpenStudioResults',{})))
         workflow_dictionary = work_flow.return_workflow_dictionary()
         # print(json.dumps(workflow_dictionary, indent=4))

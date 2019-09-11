@@ -560,14 +560,6 @@ class CorrieFrame(wx.Frame):
         current_save_data = self.construct_save_data()
         run_simulation = RunSimulation(current_save_data)
         run_simulation.run_simulations()
-#        slides_and_options_to_run = run_simulation.list_of_slides_and_options()
-#        for index, slide_and_option in enumerate(slides_and_options_to_run):
-#            slide, option = slide_and_option
-#            #self.status_bar.SetStatusText('{} --- {}. Simulation {} of {}'.format(slide, option, index + 1, len(slides_and_options_to_run)))
-#            run_simulation.run_slide_and_option(slide_and_option)
-#        results_from_simulations = run_simulation.collected_results()
-#        run_simulation.populate_excel(results_from_simulations)
-#        run_simulation.populate_powerpoint(results_from_simulations)
         print('All simulation complete.')
         self.status_bar.SetStatusText('All simulation complete.')
 
