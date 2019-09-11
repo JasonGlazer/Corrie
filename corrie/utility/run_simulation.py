@@ -37,10 +37,15 @@ class RunSimulation(object):
                 if enabled_option:
                     count = count + 1
                     pub.sendMessage('listenerUpdateStatusBar', message='Simulation {} of {}:  {} >>> {} '.format(count, total_simulation_count, slide_name, option_name))
-                    time.sleep(1)
+                    time.sleep(0.5)
+                    work_flow = OpenStudioWorkFlow('../bar-seed.osm')
+                    self.workflow_initial_steps(work_flow)
+                    self.workflow_previous_steps(work_flow, workflow_arguments)
+                    self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
+                    self.workflow_final_steps(work_flow)
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
-                    self.create_osw(root_name, option_name, workflow_arguments, osw_list, argument_value)
-                    # subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', 'workflow.osw'], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-test03_cli')
+                    osw_name = self.create_osw(root_name, work_flow)
+                    subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
                     metric_value_for_option = self.get_output_metric_value(root_name)
                     # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
                     if metric_value_for_option < selected_metric_value:
@@ -49,9 +54,7 @@ class RunSimulation(object):
             if include_incremental:
                 workflow_arguments.append(selected_option)
 
-
-    def create_osw(self, root_name, option_name, workflow_arguments, osw_list, argument_value):
-        work_flow = OpenStudioWorkFlow('../bar-seed.osm')
+    def workflow_initial_steps(self, work_flow):
         work_flow.add_step(OpenStudioStep('dg-ChangeBuildingLocation',
                                           {"weather_file_name" : self.saved_data['weatherPath']}))
         arguments = {"bldg_type_a" : "MediumOffice",
@@ -61,12 +64,31 @@ class RunSimulation(object):
             "total_bldg_floor_area" : 11000,
             "wwr" : 0.33}
         work_flow.add_step(OpenStudioStep('CreateBarFromBuildingTypeRatios', arguments))
-        work_flow.add_step((OpenStudioStep('OpenStudioResults',{})))
+
+    def workflow_previous_steps(self, work_flow, workflow_arguments):
+        for workflow_argument in workflow_arguments:
+            option_name, osw_list, argument_value = workflow_argument
+            self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
+
+    def workflow_current_option(self, work_flow, option_name, osw_list, argument_value):
+        print('option_name', option_name)
+        print('osw_list', osw_list)
+        print('argument_value', argument_value)
+        print('---------')
+        for osw_item in osw_list:
+            measure_dir_name, argument_key = osw_item
+            work_flow.add_argument_value(measure_dir_name, argument_key, argument_value)
+
+    def workflow_final_steps(self, work_flow):
+        work_flow.add_step(OpenStudioStep('OpenStudioResults',{}))
+
+    def create_osw(self, root_name, work_flow):
         workflow_dictionary = work_flow.return_workflow_dictionary()
         # print(json.dumps(workflow_dictionary, indent=4))
         osw_name = root_name + ".osw"
         with open(osw_name, 'w') as f:
             json.dump(workflow_dictionary, f, indent=4)
+        return osw_name
 
     def collected_results(self):
         return ['list_of_results',]
