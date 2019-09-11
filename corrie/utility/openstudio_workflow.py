@@ -10,6 +10,19 @@ class OpenStudioWorkFlow(object):
     def add_step(self, next_step):
         self.steps.append(next_step)
 
+    def add_argument_value(self, measure_dir_name, argument_key, argument_value):
+        found = False
+        for step in self.steps:
+            if step.measure_dir_name == measure_dir_name:
+                step.arguments[argument_key] = argument_value
+                found = True
+                break
+        if not found:
+            argument_dict = {}
+            argument_dict[argument_key] = argument_value
+            new_step = OpenStudioStep(measure_dir_name, argument_dict)
+            self.steps.append(new_step)
+
     def return_workflow_dictionary(self):
         dictionary = {}
         dictionary['seed_file'] = self.seed_file
@@ -24,14 +37,12 @@ class OpenStudioWorkFlow(object):
 
 class OpenStudioStep(object):
 
-    def __init__(self, name, measure_dir_name, arguments):
+    def __init__(self, measure_dir_name, arguments):
         self.arguments = arguments
-        self.name = name
         self.measure_dir_name = measure_dir_name
 
     def return_step_dictionary(self):
         step = {}
-        step['name'] = self.name
         step['measure_dir_name'] = self.measure_dir_name
         step['arguments'] = self.arguments
         return step

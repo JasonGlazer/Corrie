@@ -69,7 +69,7 @@ class CorrieFrame(wx.Frame):
         building_label = wx.StaticText(pnl, label='Building')
         building_options = list(self.building_dict.keys())
         self.building_choice = wx.Choice(pnl, choices=building_options)
-        self.building_choice.SetSelection(0)
+        self.building_choice.SetSelection(3)
         self.Bind(wx.EVT_CHOICE, self.handle_building_choice_select, self.building_choice)
 
         front_faces_label = wx.StaticText(pnl, label='Front Faces')
@@ -141,7 +141,7 @@ class CorrieFrame(wx.Frame):
             occ_area_sizer.Add(label, 0, wx.ALIGN_CENTER_VERTICAL | wx.TOP | wx.BOTTOM, 5) #  wx.ALIGN_RIGHT |
             occ_area_sizer.Add(text_control, 0, wx.TOP, 5)
 
-        occ_areas = {'Quick Service Restaurant': 1000, 'Full Service Restaurant': 2000, 'Retail Standalone': 1200, 'junk': 0}
+        occ_areas = {'Quick Service Restaurant': 30000, 'Full Service Restaurant': 0, 'Retail Standalone': 0, 'junk': 0}
         self.update_occ_areas(occ_areas)
 
         #call to initialize the screen
