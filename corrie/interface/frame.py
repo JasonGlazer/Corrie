@@ -366,6 +366,7 @@ class CorrieFrame(wx.Frame):
         # set options
         items_from_list = [x[0] for x in options_list]
         selected_options = []
+        # print('options_list ',options_list)
         for option, flag, argument_value in options_list:
             if flag:
                 selected_options.append(option)
@@ -397,8 +398,14 @@ class CorrieFrame(wx.Frame):
             value_options.append([self.value_choice.GetString(index),self.value_choice.IsChecked(index)])
         slide_list_ctrl = self.slide_list.GetList()
         slide_selected = slide_list_ctrl.GetString(slide_list_ctrl.GetSelection())
-        selection_mode, include_incremental, options_list, osw_list = self.all_slide_details[slide_selected]
-        self.all_slide_details[slide_selected] = [selection_mode, include_incremental, value_options, osw_list]
+        selection_mode, include_incremental, old_options_list, osw_list = self.all_slide_details[slide_selected]
+        # print('old_options_list', old_options_list)
+        # print('value_options', value_options)
+        option_argument_dictionary = {k:v for (k, _, v) in old_options_list}
+        # print('option_argument_dictionary', option_argument_dictionary)
+        new_options_list = [[choice, check_status, option_argument_dictionary[choice]] for choice, check_status in value_options ]
+        # print('new_options_list', new_options_list)
+        self.all_slide_details[slide_selected] = [selection_mode, include_incremental, new_options_list, osw_list]
 
     def build_menu(self):
         menu_bar = wx.MenuBar()

@@ -45,7 +45,9 @@ class RunSimulation(object):
                     self.workflow_final_steps(work_flow)
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
+                    print('osw_name: ',osw_name)
                     subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
+                    #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
                     metric_value_for_option = self.get_output_metric_value(root_name)
                     # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
                     if metric_value_for_option < selected_metric_value:
@@ -55,15 +57,25 @@ class RunSimulation(object):
                 workflow_arguments.append(selected_option)
 
     def workflow_initial_steps(self, work_flow):
-        work_flow.add_step(OpenStudioStep('dg-ChangeBuildingLocation',
-                                          {"weather_file_name" : self.saved_data['weatherPath']}))
+        arguments =  {"weather_file_name" : self.saved_data['weatherPath']}
+        work_flow.add_step(OpenStudioStep('dg-ChangeBuildingLocation', arguments))
+
         arguments = {"bldg_type_a" : "MediumOffice",
             "ns_to_ew_ratio" : 0.9,
+            "building_rotation": 0,
             "num_stories_above_grade" : 2,
-            "template" : self.saved_data['baselineCode'],
+            "num_stories_below_grade" : 0,
+            "template" : self.saved_data['baselineCode'].replace('ASHRAE ', ''),
             "total_bldg_floor_area" : 11000,
             "wwr" : 0.33}
         work_flow.add_step(OpenStudioStep('CreateBarFromBuildingTypeRatios', arguments))
+
+        arguments =  {
+            "system_type" : "PSZ-AC with gas coil heat",
+            "template" : self.saved_data['baselineCode'].replace('ASHRAE ', '')
+         }
+        work_flow.add_step(OpenStudioStep('CreateTypicalBuildingFromModel', arguments))
+
 
     def workflow_previous_steps(self, work_flow, workflow_arguments):
         for workflow_argument in workflow_arguments:

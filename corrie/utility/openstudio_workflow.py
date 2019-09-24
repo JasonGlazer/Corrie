@@ -43,6 +43,6 @@ class OpenStudioStep(object):
 
     def return_step_dictionary(self):
         step = {}
-        step['measure_dir_name'] = self.measure_dir_name
         step['arguments'] = self.arguments
+        step['measure_dir_name'] = self.measure_dir_name
         return step
