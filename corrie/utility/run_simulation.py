@@ -43,6 +43,7 @@ class RunSimulation(object):
                     self.workflow_previous_steps(work_flow, workflow_arguments)
                     self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
                     self.workflow_final_steps(work_flow)
+                    work_flow.run_directory = self.combined_slide_option_name(slide_name, option_name)
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
                     print('osw_name: ',osw_name)
@@ -114,10 +115,14 @@ class RunSimulation(object):
         pass
 
     def root_filename_from_slide_option(self, slide_name, option_name):
-        file_name = "{}__{}".format(slide_name, option_name)
-        clean_file_name = self.remove_invalid_file_characters(file_name)
+        clean_file_name = self.combined_slide_option_name(slide_name, option_name)
         root_file_name_path = os.path.join('C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed', clean_file_name)
         return root_file_name_path
+
+    def combined_slide_option_name(self, slide_name, option_name):
+        file_name = "{}__{}".format(slide_name, option_name)
+        clean_file_name = self.remove_invalid_file_characters(file_name)
+        return clean_file_name
 
     def remove_invalid_file_characters(self, file_name):
         # https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file

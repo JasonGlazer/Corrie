@@ -3,6 +3,8 @@ import datetime
 
 class OpenStudioWorkFlow(object):
 
+    run_directory = 'run'
+
     def __init__(self, seed_file):
         self.steps = []
         self.seed_file = seed_file
@@ -26,6 +28,7 @@ class OpenStudioWorkFlow(object):
     def return_workflow_dictionary(self):
         dictionary = {}
         dictionary['seed_file'] = self.seed_file
+        dictionary['run_directory'] = 'run-'+ self.run_directory
         # next line based on https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
         dictionary['created_at'] = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         list_of_steps = []
