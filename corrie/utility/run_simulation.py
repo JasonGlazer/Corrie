@@ -2,6 +2,7 @@ import os
 import time
 import subprocess
 import json
+import os.path
 from pubsub import pub
 
 from corrie.utility.openstudio_workflow import OpenStudioStep
@@ -10,9 +11,15 @@ from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
 
 class RunSimulation(object):
 
-    def __init__(self, saved_data):
-        self.saved_data = saved_data
-        print(saved_data)
+    def __init__(self):
+        pass
+
+    def set_current_file_name(self, current_corrie_file_name):
+        self.current_corrie_file_name = current_corrie_file_name
+        root, ext = os.path.splitext(self.current_corrie_file_name)
+        self.path_to_simulation_folder = root + "_simulations"
+        if not os.path.exists(self.path_to_simulation_folder):
+            os.mkdir(self.path_to_simulation_folder)
 
     def run_simulations(self):
         slide_details = self.saved_data['slideDetails']
@@ -38,7 +45,7 @@ class RunSimulation(object):
                     count = count + 1
                     pub.sendMessage('listenerUpdateStatusBar', message='Simulation {} of {}:  {} >>> {} '.format(count, total_simulation_count, slide_name, option_name))
                     time.sleep(0.5)
-                    work_flow = OpenStudioWorkFlow('../bar-seed.osm')
+                    work_flow = OpenStudioWorkFlow('./bar-seed.osm')
                     self.workflow_initial_steps(work_flow)
                     self.workflow_previous_steps(work_flow, workflow_arguments)
                     self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
@@ -47,7 +54,7 @@ class RunSimulation(object):
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
                     print('osw_name: ',osw_name)
-                    subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
+                    subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
                     metric_value_for_option = self.get_output_metric_value(root_name)
                     # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
@@ -103,7 +110,7 @@ class RunSimulation(object):
             json.dump(workflow_dictionary, f, indent=4)
         return osw_name
 
-    def collected_results(self):
+    def collect_results(self):
         return ['list_of_results',]
 
     def populate_excel(self, results):
@@ -116,7 +123,7 @@ class RunSimulation(object):
 
     def root_filename_from_slide_option(self, slide_name, option_name):
         clean_file_name = self.combined_slide_option_name(slide_name, option_name)
-        root_file_name_path = os.path.join('C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed', clean_file_name)
+        root_file_name_path = os.path.join(self.path_to_simulation_folder, clean_file_name)
         return root_file_name_path
 
     def combined_slide_option_name(self, slide_name, option_name):

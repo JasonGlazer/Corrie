@@ -55,6 +55,8 @@ class CorrieFrame(wx.Frame):
         self.gui_build()
         self.Refresh()
 
+        self.run_simulation = RunSimulation()
+
         # self.print_standard_paths()
 
     def handle_frame_close(self, event):
@@ -429,6 +431,8 @@ class CorrieFrame(wx.Frame):
         option_menu = wx.Menu()
         menu_option_general = option_menu.Append(201, "&General Options...", "General settings for this file.")
         self.Bind(wx.EVT_MENU, self.handle_menu_option_general, menu_option_general)
+        menu_option_regen_output = option_menu.Append(202, "Regen Output")
+        self.Bind(wx.EVT_MENU, self.handle_menu_option_regen_output, menu_option_regen_output)
         menu_bar.Append(option_menu, "&Option")
 
         help_menu = wx.Menu()
@@ -565,8 +569,9 @@ class CorrieFrame(wx.Frame):
         print('handle_run_simulation_button')
         self.status_bar.SetStatusText('handle_run_simulation_button')
         current_save_data = self.construct_save_data()
-        run_simulation = RunSimulation(current_save_data)
-        run_simulation.run_simulations()
+        self.run_simulation.saved_data = current_save_data
+        self.run_simulation.set_current_file_name(self.current_file_name)
+        self.run_simulation.run_simulations()
         print('All simulation complete.')
         self.status_bar.SetStatusText('All simulation complete.')
 
@@ -604,3 +609,13 @@ class CorrieFrame(wx.Frame):
 
     def listener_update_statusbar(self, message):
         self.status_bar.SetStatusText(message)
+
+    def handle_menu_option_regen_output(self, event):
+        print('handle_menu_option_regen_output')
+        self.status_bar.SetStatusText('handle_menu_option_regen_output')
+        current_save_data = self.construct_save_data()
+        self.run_simulation.saved_data = current_save_data
+        self.run_simulation.set_current_file_name(self.current_file_name)
+        self.run_simulation.collect_results()
+
+

@@ -29,6 +29,7 @@ class OpenStudioWorkFlow(object):
         dictionary = {}
         dictionary['seed_file'] = self.seed_file
         dictionary['run_directory'] = 'run-'+ self.run_directory
+        # dictionary['measure_paths'] = ['C:\\Users\\jglaz\\Documents\\projects\\SBIR SimArchImag\\5 SimpleBox\\os-test\\bar-seed\\measure\\',]
         # next line based on https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
         dictionary['created_at'] = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         list_of_steps = []
@@ -42,7 +43,8 @@ class OpenStudioStep(object):
 
     def __init__(self, measure_dir_name, arguments):
         self.arguments = arguments
-        self.measure_dir_name = measure_dir_name
+        # self.measure_dir_name = 'C:\\Users\\jglaz\\Documents\\projects\\SBIR SimArchImag\\5 SimpleBox\\os-test\\bar-seed\\measure\\' + measure_dir_name
+        self.measure_dir_name =  measure_dir_name
 
     def return_step_dictionary(self):
         step = {}
