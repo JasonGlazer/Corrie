@@ -618,5 +618,6 @@ class CorrieFrame(wx.Frame):
         self.run_simulation.set_current_file_name(self.current_file_name)
         results = self.run_simulation.collect_results()
         print('results: ', results)
+        self.run_simulation.populate_powerpoint()
 
 

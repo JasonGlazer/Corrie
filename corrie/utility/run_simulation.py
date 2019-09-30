@@ -7,6 +7,7 @@ from pubsub import pub
 
 from corrie.utility.openstudio_workflow import OpenStudioStep
 from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
+from corrie.utility.update_presentation import UpdatePresentation
 
 
 class RunSimulation(object):
@@ -142,9 +143,9 @@ class RunSimulation(object):
         # maybe this belongs in a different class
         pass
 
-    def populate_powerpoint(self, results):
-        # maybe this belongs in a different class
-        pass
+    def populate_powerpoint(self):
+        update_presentation = UpdatePresentation(self.saved_data, self.collected_results, self.current_corrie_file_name)
+        update_presentation.test1()
 
     def root_filename_from_slide_option(self, slide_name, option_name):
         clean_file_name = self.combined_slide_option_name(slide_name, option_name)
