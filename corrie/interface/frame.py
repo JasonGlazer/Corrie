@@ -616,6 +616,7 @@ class CorrieFrame(wx.Frame):
         current_save_data = self.construct_save_data()
         self.run_simulation.saved_data = current_save_data
         self.run_simulation.set_current_file_name(self.current_file_name)
-        self.run_simulation.collect_results()
+        results = self.run_simulation.collect_results()
+        print('results: ', results)
 
 

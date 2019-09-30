@@ -111,7 +111,32 @@ class RunSimulation(object):
         return osw_name
 
     def collect_results(self):
-        return ['list_of_results',]
+        slide_details = self.saved_data['slideDetails']
+        slide_order = self.saved_data['slideOrder']
+        running_slides = [slide_name for slide_name, should_run in slide_order if should_run]
+        self.collected_results = {}
+        for slide_name in running_slides:
+            selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
+            option_results = {}
+            for option_name, enabled_option, argument_value in options_list:
+                if enabled_option:
+                    root_name = self.root_filename_from_slide_option(slide_name, option_name)
+                    # print('root_name: ',root_name)
+                    base, tail = os.path.split(root_name)
+                    run_folder_name = os.path.join(base, 'run-' + tail)
+                    result_json_file_name = os.path.join(run_folder_name, 'results.json')
+                    # print('result_json_file_name: ', result_json_file_name)
+                    if os.path.exists(result_json_file_name):
+                        with open(result_json_file_name, 'r') as results_file:
+                            results_data = json.load(results_file)
+                            os_results = results_data['OpenStudioResults']
+                            # print(os_results)
+                            net_site_energy = os_results['net_site_energy']
+                            # print('net_site_energy: ',net_site_energy)
+                            option_results[option_name] = os_results
+            self.collected_results[slide_name] = option_results
+        # print('collected_results: ', collected_results)
+        return self.collected_results
 
     def populate_excel(self, results):
         # maybe this belongs in a different class
