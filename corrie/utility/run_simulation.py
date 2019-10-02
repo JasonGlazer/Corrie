@@ -133,7 +133,7 @@ class RunSimulation(object):
                             os_results = results_data['OpenStudioResults']
                             # print(os_results)
                             net_site_energy = os_results['net_site_energy']
-                            # print('net_site_energy: ',net_site_energy)
+                            print('For [{}--{}] the net_site_energy:  {}'.format(slide_name, option_name,net_site_energy))
                             option_results[option_name] = os_results
             self.collected_results[slide_name] = option_results
         # print('collected_results: ', collected_results)
@@ -145,7 +145,9 @@ class RunSimulation(object):
 
     def populate_powerpoint(self):
         update_presentation = UpdatePresentation(self.saved_data, self.collected_results, self.current_corrie_file_name)
-        update_presentation.test1()
+        # update_presentation.test1()
+        update_presentation.create_slides()
+
 
     def root_filename_from_slide_option(self, slide_name, option_name):
         clean_file_name = self.combined_slide_option_name(slide_name, option_name)
