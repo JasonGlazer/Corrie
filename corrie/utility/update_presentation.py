@@ -4,7 +4,7 @@ from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE
 from pptx.util import Inches, Pt
-
+from pptx.enum.chart import XL_LEGEND_POSITION, XL_DATA_LABEL_POSITION
 
 class UpdatePresentation(object):
 
@@ -104,5 +104,42 @@ class UpdatePresentation(object):
                 value_axis_title.text_frame.text = 'Net Site Energy (kBtu)'
                 value_axis.minimum_scale = 0
                 print('created slide named: ',slide_name)
+
+        # create pie chart slide
+        slide_results = self.collected_results['Aspect Ratio']
+        option_results = slide_results['width 1.0 : depth 3.0']
+        slide = prs.slides.add_slide(prs.slide_layouts[5])
+        shapes = slide.shapes
+        shapes.title.text = 'End Use Breakdown'
+
+        chart_data = CategoryChartData()
+
+        total = option_results['net_site_energy']
+
+        end_use_result_labels = ["end_use_heating","end_use_cooling","end_use_interior_lighting","end_use_exterior_lighting",
+                                 "end_use_interior_equipment","end_use_exterior_equipment","end_use_fans","end_use_pumps",
+                                 "end_use_heat_rejection","end_use_humidification","end_use_heat_recovery","end_use_water_systems",
+                                 "end_use_refrigeration", "end_use_generators"]
+        end_use_result_labels_used = [label for label in end_use_result_labels if option_results[label] > 10 ]
+        end_use_names = [eu.replace('end_use_','').replace('_',' ') for eu in end_use_result_labels_used]
+        series_data =  [option_results[label]/total for label in end_use_result_labels_used]
+        chart_data.categories = end_use_names
+        chart_data.add_series('s1', tuple(series_data))
+
+        x, y, cx, cy = Inches(0.5), Inches(2), Inches(9), Inches(5)
+
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.PIE, x, y, cx, cy, chart_data
+        ).chart
+
+        #chart.has_legend = True
+        #chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+        #chart.legend.include_in_layout = False
+
+        chart.plots[0].has_data_labels = True
+        data_labels = chart.plots[0].data_labels
+        data_labels.show_category_name = True
+        data_labels.number_format = '0%'
+        data_labels.position = XL_DATA_LABEL_POSITION.OUTSIDE_END
 
         prs.save(pptx_file)
