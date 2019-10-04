@@ -6,6 +6,7 @@ from pptx.enum.chart import XL_CHART_TYPE
 from pptx.util import Inches, Pt
 from pptx.enum.chart import XL_LEGEND_POSITION, XL_DATA_LABEL_POSITION
 
+
 class UpdatePresentation(object):
 
     def __init__(self, saved_data, collected_results, current_corrie_file_name):
@@ -120,7 +121,7 @@ class UpdatePresentation(object):
                                  "end_use_interior_equipment","end_use_exterior_equipment","end_use_fans","end_use_pumps",
                                  "end_use_heat_rejection","end_use_humidification","end_use_heat_recovery","end_use_water_systems",
                                  "end_use_refrigeration", "end_use_generators"]
-        end_use_result_labels_used = [label for label in end_use_result_labels if option_results[label] > 10 ]
+        end_use_result_labels_used = [label for label in end_use_result_labels if option_results[label] > 0 ]
         end_use_names = [eu.replace('end_use_','').replace('_',' ') for eu in end_use_result_labels_used]
         series_data =  [option_results[label]/total for label in end_use_result_labels_used]
         chart_data.categories = end_use_names

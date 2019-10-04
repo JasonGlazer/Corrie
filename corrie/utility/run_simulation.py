@@ -55,7 +55,8 @@ class RunSimulation(object):
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
                     print('osw_name: ',osw_name)
-                    subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
+                    subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
+                    #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
                     metric_value_for_option = self.get_output_metric_value(root_name)
                     # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
