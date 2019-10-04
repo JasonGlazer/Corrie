@@ -3,7 +3,7 @@ import os
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE
-from pptx.util import Inches
+from pptx.util import Inches, Pt
 
 
 class UpdatePresentation(object):
@@ -34,9 +34,43 @@ class UpdatePresentation(object):
 
     def create_slides(self):
         prs = Presentation()
+        pptx_file = self.saved_data['powerpointPath']
 
+        try:
+            f = open(pptx_file, "r+")
+            f.close()
+        except IOError:
+            print('file {} is already open and should be shut before file is saved'.format(pptx_file))
+            return
+
+        # create assumptions slide
+
+        slide = prs.slides.add_slide(prs.slide_layouts[1])
+        shapes = slide.shapes
+        title_shape = shapes.title
+        body_shape = shapes.placeholders[1]
+        title_shape.text = 'Assumptions'
+        tf = body_shape.text_frame
+        p = tf.paragraphs[0]
+        p.text = 'Building: ' + self.saved_data['building']
+        p = tf.add_paragraph()
+        p.text = 'Building front faces: ' + self.saved_data['frontFaces']
+        p = tf.add_paragraph()
+        p.text = 'Baseline code: ' + self.saved_data['baselineCode']
+        p = tf.add_paragraph()
+        weather_file_and_path = self.saved_data['weatherPath']
+        _, weather_file = os.path.split(weather_file_and_path)
+        p.text = 'Weather File: ' + weather_file
+        occupancy_areas = self.saved_data['occupancyAreas']
+        p = tf.add_paragraph()
+        p.text = 'Occupancies'
+        for area_name, area_value in occupancy_areas.items():
+            p = tf.add_paragraph()
+            p.text = '{}: {} sqft'.format(area_name, area_value)
+            p.level = 1
+
+        # create individual measure slides
         for slide_name in self.collected_results:
-
             category_list = []
             series_data = []
             slide_results = self.collected_results[slide_name]
@@ -47,6 +81,8 @@ class UpdatePresentation(object):
             # define chart data ---------------------
             if series_data:
                 slide = prs.slides.add_slide(prs.slide_layouts[5])
+                shapes = slide.shapes
+                shapes.title.text = slide_name
 
                 chart_data = CategoryChartData()
                 chart_data.categories = category_list
@@ -55,11 +91,18 @@ class UpdatePresentation(object):
                 chart_data.add_series('Series 1', tuple(series_data))
 
                 # add chart to slide --------------------
-                x, y, cx, cy = Inches(2), Inches(2), Inches(6), Inches(4.5)
-                slide.shapes.add_chart(
+                x, y, cx, cy = Inches(0.5), Inches(2), Inches(9), Inches(5)
+                chart = slide.shapes.add_chart(
                     XL_CHART_TYPE.BAR_CLUSTERED, x, y, cx, cy, chart_data
-                )
+                ).chart
+                value_axis = chart.value_axis
+                value_axis_tick_labels = value_axis.tick_labels
+                value_axis_tick_labels.number_format = '#,##0'
+                value_axis_tick_label_font = value_axis_tick_labels.font
+                value_axis_tick_label_font.size = Pt(12)
+                value_axis_title = value_axis.axis_title
+                value_axis_title.text_frame.text = 'Net Site Energy (kBtu)'
+                value_axis.minimum_scale = 0
                 print('created slide named: ',slide_name)
 
-        pptx_file = self.saved_data['powerpointPath']
         prs.save(pptx_file)
