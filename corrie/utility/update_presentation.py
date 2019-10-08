@@ -103,7 +103,7 @@ class UpdatePresentation(object):
                 value_axis_tick_label_font.size = Pt(12)
                 value_axis_title = value_axis.axis_title
                 value_axis_title.text_frame.text = 'Net Site Energy (kBtu)'
-                value_axis.minimum_scale = 0
+                # value_axis.minimum_scale = 0
                 print('created slide named: ',slide_name)
 
         # create pie chart slide

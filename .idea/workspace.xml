@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="d054b057-0ccc-454c-9e8f-c0144531968d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corrie/interface/frame.py" beforeDir="false" afterPath="$PROJECT_DIR$/corrie/interface/frame.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/corrie/utility/openstudio_workflow.py" beforeDir="false" afterPath="$PROJECT_DIR$/corrie/utility/openstudio_workflow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/corrie/utility/run_simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/corrie/utility/run_simulation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/corrie/utility/update_presentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/corrie/utility/update_presentation.py" afterDir="false" />
     </list>
@@ -28,7 +30,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="C:/repos/EP-Launch" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../cuboid-idf" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -99,7 +101,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/corrie/interface/frame.py</url>
-          <line>450</line>
+          <line>451</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>

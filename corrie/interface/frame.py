@@ -325,16 +325,17 @@ class CorrieFrame(wx.Frame):
 #        fenestration_options.append(["U-Factor=0.55 SHGC=0.48 Tvis=0.44", True])
 #        all_slide_details['Fenestration Options'] = ['Automatic',True, fenestration_options]
 
-        overhang_options = []
-        overhang_options.append(["Depth is 0.2 x Window Height", True, '0.2'])
-        overhang_options.append(["Depth is 0.3 x Window Height", False, '0.3'])
-        overhang_options.append(["Depth is 0.4 x Window Height", True, '0.4'])
-        overhang_options.append(["Depth is 0.5 x Window Height", False, '0.5'])
-        overhang_options.append(["Depth is 0.6 x Window Height", True, '0.6'])
-        overhang_options.append(["Depth is 0.7 x Window Height", False, '0.7'])
-        overhang_options.append(["Depth is 0.8 x Window Height", True, '0.8'])
-        # note also have to have arguments "facade" : "All", "function" : "Add"
-        all_slide_details['Window Overhang'] = ['Automatic',True, overhang_options, [('AddRemoveOrReplaceWindowOverhangs','projection_factor'),]]
+# the overhang measure is OS seems to always fail - need to debug
+#        overhang_options = []
+#        overhang_options.append(["Depth is 0.2 x Window Height", True, '0.2'])
+#        overhang_options.append(["Depth is 0.3 x Window Height", False, '0.3'])
+#        overhang_options.append(["Depth is 0.4 x Window Height", True, '0.4'])
+#        overhang_options.append(["Depth is 0.5 x Window Height", False, '0.5'])
+#        overhang_options.append(["Depth is 0.6 x Window Height", True, '0.6'])
+#        overhang_options.append(["Depth is 0.7 x Window Height", False, '0.7'])
+#        overhang_options.append(["Depth is 0.8 x Window Height", True, '0.8'])
+#        # note also have to have arguments "facade" : "All", "function" : "Add"
+#        all_slide_details['Window Overhang'] = ['Automatic',True, overhang_options, [('AddRemoveOrReplaceWindowOverhangs','projection_factor'),]]
 
         lighting_options = []
         lighting_options.append(["0.40 W/sqft", False, '0.40'])

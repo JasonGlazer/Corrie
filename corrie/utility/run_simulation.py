@@ -46,7 +46,8 @@ class RunSimulation(object):
                     count = count + 1
                     pub.sendMessage('listenerUpdateStatusBar', message='Simulation {} of {}:  {} >>> {} '.format(count, total_simulation_count, slide_name, option_name))
                     time.sleep(0.5)
-                    work_flow = OpenStudioWorkFlow('./bar-seed.osm')
+                    # work_flow = OpenStudioWorkFlow('./bar-seed.osm')
+                    work_flow = OpenStudioWorkFlow('D:/SBIR/seed/bar-seed.osm')
                     self.workflow_initial_steps(work_flow)
                     self.workflow_previous_steps(work_flow, workflow_arguments)
                     self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
