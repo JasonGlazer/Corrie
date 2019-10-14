@@ -5,6 +5,7 @@ import subprocess
 import json
 import os.path
 from pubsub import pub
+from collections import OrderedDict
 
 from corrie.utility.openstudio_workflow import OpenStudioStep
 from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
@@ -41,6 +42,7 @@ class RunSimulation(object):
         # now perform actual simulations
         count = 0
         # initial workflow arguments
+        self.selection_summary = OrderedDict()
         workflow_arguments = []
         for slide_name in running_slides:
             selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
@@ -65,11 +67,13 @@ class RunSimulation(object):
                     subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
-                    metric_value_for_option = self.get_output_metric_value(root_name)
+                    os_results = self.get_openstudio_json_results(root_name)
+                    metric_value_for_option = os_results['net_site_energy'] #presume using site energy for now
                     # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
                     if metric_value_for_option < selected_metric_value:
                         selected_metric_value = metric_value_for_option
                         selected_option = (option_name, osw_list, argument_value)
+                        self.selection_summary[slide_name] = (option_name, argument_value, metric_value_for_option)
             if include_incremental:
                 workflow_arguments.append(selected_option)
 
@@ -124,35 +128,52 @@ class RunSimulation(object):
         slide_order = self.saved_data['slideOrder']
         running_slides = [slide_name for slide_name, should_run in slide_order if should_run]
         self.collected_results = {}
+        self.selection_summary = OrderedDict()
+        selected_metric_value = 1.0e+300
         for slide_name in running_slides:
             selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
             option_results = {}
             for option_name, enabled_option, argument_value in options_list:
                 if enabled_option:
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
-                    # print('root_name: ',root_name)
-                    base, tail = os.path.split(root_name)
-                    run_folder_name = os.path.join(base, 'run-' + tail)
-                    result_json_file_name = os.path.join(run_folder_name, 'results.json')
-                    # print('result_json_file_name: ', result_json_file_name)
-                    if os.path.exists(result_json_file_name):
-                        with open(result_json_file_name, 'r') as results_file:
-                            results_data = json.load(results_file)
-                            os_results = results_data['OpenStudioResults']
-                            # print(os_results)
-                            net_site_energy = os_results['net_site_energy']
-                            print('For [{}--{}] the net_site_energy:  {}'.format(slide_name, option_name,net_site_energy))
-                            option_results[option_name] = os_results
+                    os_results = self.get_openstudio_json_results(root_name)
+                    if os_results:
+                        option_results[option_name] = os_results
+                        print('os_results: ',os_results)
+                        metric_value_for_option = os_results['net_site_energy']
+                        print('For [{}--{}] the net_site_energy:  {}'.format(slide_name, option_name, metric_value_for_option))
+                        if metric_value_for_option < selected_metric_value:
+                            selected_metric_value = metric_value_for_option
+                            selected_option = (option_name, osw_list, argument_value)
+                            self.selection_summary[slide_name] = (option_name, argument_value, metric_value_for_option)
+                            print('selected_option: ', selected_option)
             self.collected_results[slide_name] = option_results
         # print('collected_results: ', collected_results)
+
+        for slide_name, value in self.selection_summary.items():
+            print('selection_summary[{}]: {}'.format(slide_name, value))
+
         return self.collected_results
+
+    def get_openstudio_json_results(self, root_name):
+        base, tail = os.path.split(root_name)
+        run_folder_name = os.path.join(base, 'run-' + tail)
+        result_json_file_name = os.path.join(run_folder_name, 'results.json')
+        # print('result_json_file_name: ', result_json_file_name)
+        if os.path.exists(result_json_file_name):
+            with open(result_json_file_name, 'r') as results_file:
+                results_data = json.load(results_file)
+                os_results = results_data['OpenStudioResults']
+                return os_results
+        else:
+            return {}
 
     def populate_excel(self, results):
         # maybe this belongs in a different class
         pass
 
     def populate_powerpoint(self):
-        update_presentation = UpdatePresentation(self.saved_data, self.collected_results, self.current_corrie_file_name)
+        update_presentation = UpdatePresentation(self.saved_data, self.collected_results, self.current_corrie_file_name, self.selection_summary)
         # update_presentation.test1()
         update_presentation.create_slides()
 
@@ -187,6 +208,3 @@ class RunSimulation(object):
         # just get rid of spaces too to make them a little easier deal with
         newname = newname.replace(' ', '_')
         return newname
-
-    def get_output_metric_value(self, root_name):
-        return 0

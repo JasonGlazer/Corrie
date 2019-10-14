@@ -9,10 +9,11 @@ from pptx.enum.chart import XL_LEGEND_POSITION, XL_DATA_LABEL_POSITION
 
 class UpdatePresentation(object):
 
-    def __init__(self, saved_data, collected_results, current_corrie_file_name):
+    def __init__(self, saved_data, collected_results, current_corrie_file_name, selection_summary):
         self.saved_data = saved_data
         self.collected_results = collected_results
         self.current_corrie_file_name = current_corrie_file_name
+        self.selection_summary = selection_summary
 
     def test1(self):
         # create presentation with 1 slide ------
@@ -37,12 +38,13 @@ class UpdatePresentation(object):
         prs = Presentation()
         pptx_file = self.saved_data['powerpointPath']
 
-        try:
-            f = open(pptx_file, "r+")
-            f.close()
-        except IOError:
-            print('file {} is already open and should be shut before file is saved'.format(pptx_file))
-            return
+        if os.path.exists(pptx_file):
+            try:
+                f = open(pptx_file, "r+")
+                f.close()
+            except IOError:
+                print('file {} is already open and should be shut before file is saved'.format(pptx_file))
+                return
 
         # create assumptions slide
 
@@ -148,5 +150,43 @@ class UpdatePresentation(object):
         data_labels.show_category_name = True
         data_labels.number_format = '0%'
         data_labels.position = XL_DATA_LABEL_POSITION.OUTSIDE_END
+
+
+        # selection slide
+
+        slide = prs.slides.add_slide(prs.slide_layouts[5])
+        shapes = slide.shapes
+        shapes.title.text = 'Selection Summary'
+
+        chart_data = CategoryChartData()
+
+        category_list = []
+        series_data = []
+
+        for slide_name in reversed(self.selection_summary):
+            value = self.selection_summary[slide_name]
+            option_name, argument_value, metric_value_for_option = value
+            category_list.append('{} - {}'.format(slide_name, option_name))
+            series_data.append(metric_value_for_option)
+
+        chart_data.categories = category_list
+        print('chart_data.categories: ', chart_data.categories)
+        print('tuple(series_data): ', tuple(series_data))
+        chart_data.add_series('Series 1', tuple(series_data))
+
+        # add chart to slide --------------------
+        x, y, cx, cy = Inches(0.5), Inches(2), Inches(9), Inches(5)
+        chart = slide.shapes.add_chart(
+            XL_CHART_TYPE.BAR_CLUSTERED, x, y, cx, cy, chart_data
+        ).chart
+        value_axis = chart.value_axis
+        value_axis_tick_labels = value_axis.tick_labels
+        value_axis_tick_labels.number_format = '#,##0'
+        value_axis_tick_label_font = value_axis_tick_labels.font
+        value_axis_tick_label_font.size = Pt(12)
+        value_axis_title = value_axis.axis_title
+        value_axis_title.text_frame.text = 'Net Site Energy (kBtu)'
+        # value_axis.minimum_scale = 0
+        print('created slide named: ', shapes.title.text)
 
         prs.save(pptx_file)
