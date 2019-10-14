@@ -1,0 +1,245 @@
+
+OS:Version,
+  {3877982e-07b6-4487-bdfb-fa2b927a1ef5}, !- Handle
+  2.8.1;                                  !- Version Identifier
+
+OS:Site,
+  {12752cae-2155-4e47-9a02-a4d1a687eb04}, !- Handle
+  Site 1,                                 !- Name
+  ,                                       !- Latitude {deg}
+  ,                                       !- Longitude {deg}
+  ,                                       !- Time Zone {hr}
+  ,                                       !- Elevation {m}
+  ;                                       !- Terrain
+
+OS:YearDescription,
+  {8abd4c9b-f8be-4d58-985f-87cd1829b3f0}; !- Handle
+
+OS:ClimateZones,
+  {e3e16c84-6098-4cee-98ed-1bc84792e905}, !- Handle
+  ,                                       !- Active Institution
+  ,                                       !- Active Year
+  ,                                       !- Climate Zone Institution Name 1
+  ,                                       !- Climate Zone Document Name 1
+  ,                                       !- Climate Zone Document Year 1
+  ,                                       !- Climate Zone Value 1
+  CEC,                                    !- Climate Zone Institution Name 2
+  California Climate Zone Descriptions,   !- Climate Zone Document Name 2
+  1995,                                   !- Climate Zone Document Year 2
+  ;                                       !- Climate Zone Value 2
+
+OS:Building,
+  {64a8a2f9-590f-4199-a406-38c9ec2bdafb}, !- Handle
+  Building 1,                             !- Name
+  ,                                       !- Building Sector Type
+  ,                                       !- North Axis {deg}
+  ,                                       !- Nominal Floor to Floor Height {m}
+  ,                                       !- Space Type Name
+  ,                                       !- Default Construction Set Name
+  ;                                       !- Default Schedule Set Name
+
+OS:Facility,
+  {bae29dbb-b0f4-4d82-895f-a5b7b29a7226}; !- Handle
+
+OS:SimulationControl,
+  {f96e86d9-6354-406f-921d-dc8f086c67f2}; !- Handle
+
+OS:Sizing:Parameters,
+  {a82c5d03-291b-45ea-8bfd-78bdc11c31bf}, !- Handle
+  1.25,                                   !- Heating Sizing Factor
+  1.15;                                   !- Cooling Sizing Factor
+
+OS:Timestep,
+  {4b9c79aa-08a9-46f2-879a-76073c97f566}, !- Handle
+  6;                                      !- Number of Timesteps per Hour
+
+OS:ShadowCalculation,
+  {b4a6cc5d-c1f9-43bf-b893-51bad43780ef}, !- Handle
+  20,                                     !- Calculation Frequency
+  15000;                                  !- Maximum Figures in Shadow Overlap Calculations
+
+OS:HeatBalanceAlgorithm,
+  {719e469c-5c3a-4b05-99f7-a381797675b4}, !- Handle
+  ConductionTransferFunction,             !- Algorithm
+  200;                                    !- Surface Temperature Upper Limit {C}
+
+OS:RunPeriod,
+  {ffcbe912-7e05-4ac1-9ab5-483e63b60420}, !- Handle
+  Run Period 1,                           !- Name
+  1,                                      !- Begin Month
+  1,                                      !- Begin Day of Month
+  12,                                     !- End Month
+  31,                                     !- End Day of Month
+  ,                                       !- Use Weather File Holidays and Special Days
+  ,                                       !- Use Weather File Daylight Saving Period
+  ,                                       !- Apply Weekend Holiday Rule
+  ,                                       !- Use Weather File Rain Indicators
+  ,                                       !- Use Weather File Snow Indicators
+  ;                                       !- Number of Times Runperiod to be Repeated
+
+OS:LifeCycleCost:Parameters,
+  {9bb967e9-b517-4732-94d1-d3b4d0af93be}, !- Handle
+  ,                                       !- Analysis Type
+  ,                                       !- Discounting Convention
+  ,                                       !- Inflation Approach
+  ,                                       !- Real Discount Rate
+  ,                                       !- Nominal Discount Rate
+  ,                                       !- Inflation
+  ,                                       !- Base Date Month
+  ,                                       !- Base Date Year
+  ,                                       !- Service Date Month
+  ,                                       !- Service Date Year
+  ;                                       !- Length of Study Period in Years
+
+OS:Construction,
+  {71f6158b-55d3-4e39-9ae5-208cd7571c6c}, !- Handle
+  Dbl Ref-C-L Tint 6mm/6mm Air,           !- Name
+  ,                                       !- Surface Rendering Name
+  {05ce203b-d853-43d4-9400-416b2b129601}, !- Layer 1
+  {ae3472aa-8888-4037-9ebc-30a32abbd45d}, !- Layer 2
+  {7a8826a0-5962-425f-b658-8e16bfd60ce5}; !- Layer 3
+
+OS:WindowMaterial:Glazing,
+  {05ce203b-d853-43d4-9400-416b2b129601}, !- Handle
+  REF C TINT LO 6MM,                      !- Name
+  SpectralAverage,                        !- Optical Data Type
+  ,                                       !- Window Glass Spectral Data Set Name
+  0.006,                                  !- Thickness {m}
+  0.07,                                   !- Solar Transmittance at Normal Incidence
+  0.13,                                   !- Front Side Solar Reflectance at Normal Incidence
+  0.49,                                   !- Back Side Solar Reflectance at Normal Incidence
+  0.08,                                   !- Visible Transmittance at Normal Incidence
+  0.13,                                   !- Front Side Visible Reflectance at Normal Incidence
+  0.42,                                   !- Back Side Visible Reflectance at Normal Incidence
+  0,                                      !- Infrared Transmittance at Normal Incidence
+  0.84,                                   !- Front Side Infrared Hemispherical Emissivity
+  0.43,                                   !- Back Side Infrared Hemispherical Emissivity
+  0.9;                                    !- Conductivity {W/m-K}
+
+OS:WindowMaterial:Gas,
+  {ae3472aa-8888-4037-9ebc-30a32abbd45d}, !- Handle
+  AIR 6MM,                                !- Name
+  Air,                                    !- Gas Type
+  0.0063;                                 !- Thickness {m}
+
+OS:WindowMaterial:Glazing,
+  {7a8826a0-5962-425f-b658-8e16bfd60ce5}, !- Handle
+  CLEAR 6MM,                              !- Name
+  SpectralAverage,                        !- Optical Data Type
+  ,                                       !- Window Glass Spectral Data Set Name
+  0.006,                                  !- Thickness {m}
+  0.775,                                  !- Solar Transmittance at Normal Incidence
+  0.071,                                  !- Front Side Solar Reflectance at Normal Incidence
+  0.071,                                  !- Back Side Solar Reflectance at Normal Incidence
+  0.881,                                  !- Visible Transmittance at Normal Incidence
+  0.08,                                   !- Front Side Visible Reflectance at Normal Incidence
+  0.08,                                   !- Back Side Visible Reflectance at Normal Incidence
+  0,                                      !- Infrared Transmittance at Normal Incidence
+  0.84,                                   !- Front Side Infrared Hemispherical Emissivity
+  0.84,                                   !- Back Side Infrared Hemispherical Emissivity
+  0.9;                                    !- Conductivity {W/m-K}
+
+OS:ComponentData,
+  {6a946a33-c182-423f-8269-be2dfa9a193e}, !- Handle
+  Component Data 1,                       !- Name
+  {e0ac654a-5181-4881-8d29-6e83a60ec6cd}, !- UUID
+  {9226b193-3836-4f4f-b3e9-926b73066bf7}, !- Version UUID
+  1384380196,                             !- Creation Timestamp
+  1384380196,                             !- Version Timestamp
+  {71f6158b-55d3-4e39-9ae5-208cd7571c6c}, !- Name of Object 1
+  {05ce203b-d853-43d4-9400-416b2b129601}, !- Name of Object 2
+  {ae3472aa-8888-4037-9ebc-30a32abbd45d}, !- Name of Object 3
+  {7a8826a0-5962-425f-b658-8e16bfd60ce5}; !- Name of Object 4
+
+OS:StandardsInformation:Construction,
+  {49f11866-b340-4196-9898-72e014218098}, !- Handle
+  {71f6158b-55d3-4e39-9ae5-208cd7571c6c}; !- Construction Name
+
+OS:Construction,
+  {2976372d-814c-4dde-93d7-29d4225c4f7b}, !- Handle
+  Dbl Ref-D Clr 6mm/13mm Arg,             !- Name
+  ,                                       !- Surface Rendering Name
+  {c202d909-1edc-48c4-a12b-1b1f2df455d6}, !- Layer 1
+  {d379e837-261b-4d85-9b89-f58cead7bf9f}, !- Layer 2
+  {3c2fb0a2-19bf-449f-ba90-8504d44c0778}; !- Layer 3
+
+OS:WindowMaterial:Glazing,
+  {c202d909-1edc-48c4-a12b-1b1f2df455d6}, !- Handle
+  REF D CLEAR 6MM,                        !- Name
+  SpectralAverage,                        !- Optical Data Type
+  ,                                       !- Window Glass Spectral Data Set Name
+  0.006,                                  !- Thickness {m}
+  0.429,                                  !- Solar Transmittance at Normal Incidence
+  0.308,                                  !- Front Side Solar Reflectance at Normal Incidence
+  0.379,                                  !- Back Side Solar Reflectance at Normal Incidence
+  0.334,                                  !- Visible Transmittance at Normal Incidence
+  0.453,                                  !- Front Side Visible Reflectance at Normal Incidence
+  0.505,                                  !- Back Side Visible Reflectance at Normal Incidence
+  0,                                      !- Infrared Transmittance at Normal Incidence
+  0.84,                                   !- Front Side Infrared Hemispherical Emissivity
+  0.82,                                   !- Back Side Infrared Hemispherical Emissivity
+  0.9;                                    !- Conductivity {W/m-K}
+
+OS:WindowMaterial:Gas,
+  {d379e837-261b-4d85-9b89-f58cead7bf9f}, !- Handle
+  ARGON 13MM,                             !- Name
+  Argon,                                  !- Gas Type
+  0.0127;                                 !- Thickness {m}
+
+OS:WindowMaterial:Glazing,
+  {3c2fb0a2-19bf-449f-ba90-8504d44c0778}, !- Handle
+  CLEAR 6MM 1,                            !- Name
+  SpectralAverage,                        !- Optical Data Type
+  ,                                       !- Window Glass Spectral Data Set Name
+  0.006,                                  !- Thickness {m}
+  0.775,                                  !- Solar Transmittance at Normal Incidence
+  0.071,                                  !- Front Side Solar Reflectance at Normal Incidence
+  0.071,                                  !- Back Side Solar Reflectance at Normal Incidence
+  0.881,                                  !- Visible Transmittance at Normal Incidence
+  0.08,                                   !- Front Side Visible Reflectance at Normal Incidence
+  0.08,                                   !- Back Side Visible Reflectance at Normal Incidence
+  0,                                      !- Infrared Transmittance at Normal Incidence
+  0.84,                                   !- Front Side Infrared Hemispherical Emissivity
+  0.84,                                   !- Back Side Infrared Hemispherical Emissivity
+  0.9;                                    !- Conductivity {W/m-K}
+
+OS:ComponentData,
+  {c82b9fac-913f-4250-9960-bb86dc7a085c}, !- Handle
+  Component Data 2,                       !- Name
+  {c633e66a-5feb-44b3-bf32-5ee4c68a4a17}, !- UUID
+  {bf9192a5-58a1-45d5-ae50-59d5eecc9085}, !- Version UUID
+  1384380193,                             !- Creation Timestamp
+  1384380193,                             !- Version Timestamp
+  {2976372d-814c-4dde-93d7-29d4225c4f7b}, !- Name of Object 1
+  {c202d909-1edc-48c4-a12b-1b1f2df455d6}, !- Name of Object 2
+  {d379e837-261b-4d85-9b89-f58cead7bf9f}, !- Name of Object 3
+  {3c2fb0a2-19bf-449f-ba90-8504d44c0778}; !- Name of Object 4
+
+OS:StandardsInformation:Construction,
+  {c31c1a3e-676a-4335-9a41-b2c8369bd877}, !- Handle
+  {2976372d-814c-4dde-93d7-29d4225c4f7b}; !- Construction Name
+
+OS:StandardsInformation:Material,
+  {27a59d1d-8a7f-4f79-a035-86a8e852fa16}, !- Handle
+  {05ce203b-d853-43d4-9400-416b2b129601}; !- Material Name
+
+OS:StandardsInformation:Material,
+  {d839111a-e482-4df5-8cbc-751d2e90650b}, !- Handle
+  {ae3472aa-8888-4037-9ebc-30a32abbd45d}; !- Material Name
+
+OS:StandardsInformation:Material,
+  {c8c51a8e-3fbe-498a-a3f1-ba13481ce1b6}, !- Handle
+  {7a8826a0-5962-425f-b658-8e16bfd60ce5}; !- Material Name
+
+OS:StandardsInformation:Material,
+  {62a2bfb4-c522-406b-9801-4e61593ae87a}, !- Handle
+  {c202d909-1edc-48c4-a12b-1b1f2df455d6}; !- Material Name
+
+OS:StandardsInformation:Material,
+  {3c92d2de-37d5-4470-b195-b2b4c609a31e}, !- Handle
+  {d379e837-261b-4d85-9b89-f58cead7bf9f}; !- Material Name
+
+OS:StandardsInformation:Material,
+  {1aa4f075-ab6f-4004-96b9-3b95f74e761e}, !- Handle
+  {3c2fb0a2-19bf-449f-ba90-8504d44c0778}; !- Material Name
+
