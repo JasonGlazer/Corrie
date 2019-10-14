@@ -1,4 +1,6 @@
 import datetime
+import os
+import sys
 
 
 class OpenStudioWorkFlow(object):
@@ -30,7 +32,12 @@ class OpenStudioWorkFlow(object):
         dictionary['seed_file'] = self.seed_file
         dictionary['run_directory'] = 'run-'+ self.run_directory
         # dictionary['measure_paths'] = ['C:\\Users\\jglaz\\Documents\\projects\\SBIR SimArchImag\\5 SimpleBox\\os-test\\bar-seed\\measure\\',]
-        dictionary['measure_paths'] = ['D:/SBIR/measures/',]
+        script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+        measures_dir_path = os.path.join(script_path,'measures')
+        # dictionary['measure_paths'] = ['D:/SBIR/measures/',]
+        dictionary['measure_paths'] = [measures_dir_path,]
+
+
         # next line based on https://stackoverflow.com/questions/2150739/iso-time-iso-8601-in-python
         dictionary['created_at'] = datetime.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         list_of_steps = []

@@ -1,6 +1,7 @@
 import wx
 import json
 import os
+import sys
 from pubsub import pub
 
 

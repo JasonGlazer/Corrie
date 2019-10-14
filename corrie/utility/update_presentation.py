@@ -107,8 +107,14 @@ class UpdatePresentation(object):
                 print('created slide named: ',slide_name)
 
         # create pie chart slide
-        slide_results = self.collected_results['Aspect Ratio']
-        option_results = slide_results['width 1.0 : depth 3.0']
+        # print('collected_results:', self.collected_results)
+
+        slide_results = self.collected_results[list(self.collected_results)[0]] # get 'first' key - can probably do better than this approach
+        # print('slide_results:', slide_results)
+
+        option_results = slide_results[list(slide_results)[0]] # get 'first' key - can probably do better than this approach
+        # print('option_results:', option_results)
+
         slide = prs.slides.add_slide(prs.slide_layouts[5])
         shapes = slide.shapes
         shapes.title.text = 'End Use Breakdown'

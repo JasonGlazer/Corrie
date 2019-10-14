@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import subprocess
 import json
@@ -25,6 +26,10 @@ class RunSimulation(object):
     def run_simulations(self):
         slide_details = self.saved_data['slideDetails']
         slide_order = self.saved_data['slideOrder']
+        script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+        seed_dir_path = os.path.join(script_path,'seed')
+        seed_file_path = os.path.join(seed_dir_path, 'bar-seed.osm')
+
         # determine number of total simulations
         total_simulation_count = 0
         running_slides = [slide_name for slide_name, should_run in slide_order if should_run]
@@ -47,7 +52,8 @@ class RunSimulation(object):
                     pub.sendMessage('listenerUpdateStatusBar', message='Simulation {} of {}:  {} >>> {} '.format(count, total_simulation_count, slide_name, option_name))
                     time.sleep(0.5)
                     # work_flow = OpenStudioWorkFlow('./bar-seed.osm')
-                    work_flow = OpenStudioWorkFlow('D:/SBIR/seed/bar-seed.osm')
+                    # work_flow = OpenStudioWorkFlow('D:/SBIR/seed/bar-seed.osm')
+                    work_flow = OpenStudioWorkFlow(seed_file_path)
                     self.workflow_initial_steps(work_flow)
                     self.workflow_previous_steps(work_flow, workflow_arguments)
                     self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
