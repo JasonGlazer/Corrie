@@ -576,6 +576,8 @@ class CorrieFrame(wx.Frame):
         self.run_simulation.run_simulations()
         print('All simulation complete.')
         self.status_bar.SetStatusText('All simulation complete.')
+        results = self.run_simulation.collect_results()
+        self.run_simulation.populate_powerpoint()
 
     def print_standard_paths(self):
         sp = wx.StandardPaths.Get()
