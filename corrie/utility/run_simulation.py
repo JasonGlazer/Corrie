@@ -6,7 +6,6 @@ import json
 import os.path
 import platform
 import string
-import glob
 
 from pubsub import pub
 from collections import OrderedDict
@@ -181,7 +180,6 @@ class RunSimulation(object):
         update_presentation = UpdatePresentation(self.saved_data, self.collected_results, self.current_corrie_file_name, self.selection_summary)
         # update_presentation.test1()
         update_presentation.create_slides()
-
 
     def root_filename_from_slide_option(self, slide_name, option_name):
         clean_file_name = self.combined_slide_option_name(slide_name, option_name)

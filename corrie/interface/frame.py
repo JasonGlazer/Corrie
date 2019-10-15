@@ -13,7 +13,7 @@ from corrie.utility.initialize_data import InitializeData
 # noinspection PyUnusedLocal
 class CorrieFrame(wx.Frame):
     OutputToolbarIconSize = (16, 15)
-    current_file_name = r"c:\temp\test1.corrie"
+    current_file_name = 'untitled.corrie'
 
     def __init__(self, *args, **kwargs):
 
@@ -180,6 +180,7 @@ class CorrieFrame(wx.Frame):
         select_mode_hbox.Add(select_mode_label, 0, wx.ALL, 5)
         select_mode_hbox.Add(self.select_mode_choice, 1, wx.ALL, 5)
         slide_details_sizer.Add(select_mode_hbox, 0, wx.ALL, 5)
+        slide_details_sizer.Hide(select_mode_hbox, recursive=True)
 
         option_simulated_label = wx.StaticText(self.slide_details_box, label="Options Simulated")
         slide_details_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
@@ -195,11 +196,13 @@ class CorrieFrame(wx.Frame):
         self.Bind(wx.EVT_CHECKBOX, self.handle_incremental_checkbox_check, self.incremental_checkbox)
 
         slide_details_sizer.Add(self.incremental_checkbox, 0, wx.ALL, 5)
+        self.incremental_checkbox.Hide() # hide portions of the GUI that are not yet implemented
         self.slide_details_box.SetSizer(slide_details_sizer)
 
         self.run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
         self.run_simulations_button.Bind(wx.EVT_BUTTON, self.handle_run_simulation_button)
         cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
+        cancel_simulations_button.Disable()
 
         run_cancel_sizer = wx.BoxSizer(wx.HORIZONTAL)
         run_cancel_sizer.Add(self.run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
@@ -222,6 +225,8 @@ class CorrieFrame(wx.Frame):
         main_vbox.Add(weather_hbox, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
         main_vbox.Add(bottom_hbox, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, border=20)
         main_vbox.Add(self.status_bar,0)
+
+        main_vbox.Hide(excel_hbox, recursive=True) # hide portions of the GUI that are not yet implemented
 
         pnl.SetSizer(main_vbox)
         pnl.Fit()
@@ -415,7 +420,7 @@ class CorrieFrame(wx.Frame):
         menu_bar = wx.MenuBar()
 
         file_menu = wx.Menu()
-        menu_file_new = file_menu.Append(101, "&New", "Create a new Corrie file")
+        #menu_file_new = file_menu.Append(101, "&New", "Create a new Corrie file")
         menu_file_open = file_menu.Append(102, "&Open...", "Open an existing Corrie file")
         self.Bind(wx.EVT_MENU, self.handle_file_open, menu_file_open)
         file_menu.AppendSeparator()
@@ -424,23 +429,23 @@ class CorrieFrame(wx.Frame):
         menu_file_save_as = file_menu.Append(104, "Save &As...", "Save file to a new file name")
         self.Bind(wx.EVT_MENU, self.handle_file_save_as, menu_file_save_as)
         file_menu.AppendSeparator()
-        menu_file_close = file_menu.Append(105, "&Close", "Close the file")
-        file_menu.AppendSeparator()
+        # menu_file_close = file_menu.Append(105, "&Close", "Close the file")
+        # file_menu.AppendSeparator()
         menu_file_exit = file_menu.Append(106, "E&xit", "Exit the application")
         self.Bind(wx.EVT_MENU, self.handle_quit, menu_file_exit)
         menu_bar.Append(file_menu, "&File")
 
         option_menu = wx.Menu()
-        menu_option_general = option_menu.Append(201, "&General Options...", "General settings for this file.")
-        self.Bind(wx.EVT_MENU, self.handle_menu_option_general, menu_option_general)
-        menu_option_regen_output = option_menu.Append(202, "Regen Output")
+        # menu_option_general = option_menu.Append(201, "&General Options...", "General settings for this file.")
+        # self.Bind(wx.EVT_MENU, self.handle_menu_option_general, menu_option_general)
+        menu_option_regen_output = option_menu.Append(202, "Regenerate Presentation")
         self.Bind(wx.EVT_MENU, self.handle_menu_option_regen_output, menu_option_regen_output)
         menu_bar.Append(option_menu, "&Option")
 
-        help_menu = wx.Menu()
-        menu_help_topic = help_menu.Append(301, "&Topic...", "Get help.")
-        menu_help_about = help_menu.Append(302, "&About...", "About Corrie.")
-        menu_bar.Append(help_menu, "&Help")
+        # help_menu = wx.Menu()
+        # menu_help_topic = help_menu.Append(301, "&Topic...", "Get help.")
+        # menu_help_about = help_menu.Append(302, "&About...", "About Corrie.")
+        # menu_bar.Append(help_menu, "&Help")
 
         self.SetMenuBar(menu_bar)
 
@@ -570,6 +575,9 @@ class CorrieFrame(wx.Frame):
     def handle_run_simulation_button(self, event):
         print('handle_run_simulation_button')
         self.status_bar.SetStatusText('handle_run_simulation_button')
+        if self.current_file_name == 'untitled.corrie' or not self.powerpoint_filepick.GetPath() or not self.weather_filepick.GetPath():
+            wx.MessageBox('No simulation can be performed before: \n (1) saving the current file \n (2) choosing a PowerPoint file and \n (3) choosing a weather file.','Info', wx.OK)
+            return
         current_save_data = self.construct_save_data()
         self.run_simulation.saved_data = current_save_data
         self.run_simulation.set_current_file_name(self.current_file_name)
@@ -623,5 +631,6 @@ class CorrieFrame(wx.Frame):
         results = self.run_simulation.collect_results()
         print('results: ', results)
         self.run_simulation.populate_powerpoint()
+
 
 
