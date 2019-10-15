@@ -4,6 +4,10 @@ import time
 import subprocess
 import json
 import os.path
+import platform
+import string
+import glob
+
 from pubsub import pub
 from collections import OrderedDict
 
@@ -15,7 +19,7 @@ from corrie.utility.update_presentation import UpdatePresentation
 class RunSimulation(object):
 
     def __init__(self):
-        pass
+        self.openstudio_path = self.find_openstudio()
 
     def set_current_file_name(self, current_corrie_file_name):
         self.current_corrie_file_name = current_corrie_file_name
@@ -64,9 +68,10 @@ class RunSimulation(object):
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
                     print('osw_name: ',osw_name)
-                    subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
+                    #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
+                    subprocess.run([self.openstudio_path,'run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     os_results = self.get_openstudio_json_results(root_name)
                     metric_value_for_option = os_results['net_site_energy'] #presume using site energy for now
                     # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
@@ -208,3 +213,23 @@ class RunSimulation(object):
         # just get rid of spaces too to make them a little easier deal with
         newname = newname.replace(' ', '_')
         return newname
+
+    def find_openstudio(self):
+        platform_name = platform.system()
+        if platform_name == 'Windows':
+            search_roots = ['{}:/'.format(c) for c in string.ascii_uppercase]
+        elif platform_name == 'Linux':
+            search_roots = ['/usr/local/bin/', '/tmp/']
+        elif platform_name == 'Darwin':
+            search_roots = ['/Applications/', '/tmp/']
+        else:
+            search_roots = ['{}:/'.format(c) for c in string.ascii_uppercase]  # presume windows if can't identify platform
+        search_version = '2.8.0' # this needs to match or be greater than the version of the measures and seed file
+        application_file = '/bin/openstudio.exe'
+        search_names = ['OpenStudio-', "openstudio-", "os-", "OS-", 'OpenStudio_', "openstudio_", "os_", "OS_",'OpenStudio', "openstudio", "os", "OS"]
+        for search_root in search_roots:
+            for search_name in search_names:
+                full_search_path = os.path.join(search_root, search_name + search_version + application_file)
+                if os.path.exists(full_search_path):
+                    return full_search_path
+        return ''
