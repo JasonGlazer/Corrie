@@ -13,12 +13,16 @@ from collections import OrderedDict
 from corrie.utility.openstudio_workflow import OpenStudioStep
 from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
 from corrie.utility.update_presentation import UpdatePresentation
+from corrie.utility.initialize_data import InitializeData
 
 
 class RunSimulation(object):
 
     def __init__(self):
         self.openstudio_path = self.find_openstudio()
+        initializer = InitializeData()
+        self.building_dict = initializer.populate_buildings()
+
 
     def set_current_file_name(self, current_corrie_file_name):
         self.current_corrie_file_name = current_corrie_file_name
@@ -67,9 +71,6 @@ class RunSimulation(object):
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
                     print('osw_name: ',osw_name)
-                    #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
-                    #subprocess.run(['C:/openstudio-2.8.1-cli-ep/bin/openstudio.exe','run','-w', osw_name], cwd=self.path_to_simulation_folder)
-                    #subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe','run','-w', osw_name], cwd='C:/Users/jglaz/Documents/projects/SBIR SimArchImag/5 SimpleBox/os-test/bar-seed')
                     subprocess.run([self.openstudio_path,'run','-w', osw_name], cwd=self.path_to_simulation_folder)
                     os_results = self.get_openstudio_json_results(root_name)
                     metric_value_for_option = os_results['net_site_energy'] #presume using site energy for now
@@ -82,17 +83,35 @@ class RunSimulation(object):
                 workflow_arguments.append(selected_option)
 
     def workflow_initial_steps(self, work_flow):
+        occupancy_areas = self.saved_data['occupancyAreas']
+        occupancy_keys = list(occupancy_areas.keys())
+
+        total_area = 0
+        for occupancy_key in occupancy_keys:
+            total_area += float(occupancy_areas[occupancy_key])
+        print('total_area: ', total_area)
+
+        non_primary_occupancy_keys = list(occupancy_areas.keys())
+        non_primary_occupancy_keys.remove(self.saved_data['building'])
+
         arguments =  {"weather_file_name" : self.saved_data['weatherPath']}
         work_flow.add_step(OpenStudioStep('dg-ChangeBuildingLocation', arguments))
 
-        arguments = {"bldg_type_a" : "MediumOffice",
-            "ns_to_ew_ratio" : 0.9,
-            "building_rotation": 0,
-            "num_stories_above_grade" : 2,
+        building_orientation = {'North':0, 'North East':45, 'East':90, 'South East':135, 'South':180, 'South West':225, 'West':270, 'North West':315}
+
+
+        arguments = {"bldg_type_a" : self.building_dict[self.saved_data['building']].building_type,
+            "ns_to_ew_ratio" : 1.5,
+            "building_rotation": building_orientation[self.saved_data['frontFaces']],
+            "num_stories_above_grade" : 1,
             "num_stories_below_grade" : 0,
             "template" : self.saved_data['baselineCode'].replace('ASHRAE ', ''),
-            "total_bldg_floor_area" : 11000,
-            "wwr" : 0.33}
+            "total_bldg_floor_area" : total_area,
+            "wwr" : 0.30}
+        for index, non_primary_occupancy_key in enumerate(non_primary_occupancy_keys,1):
+            letter_suffix = string.ascii_lowercase[index]
+            arguments['bldg_type_' + letter_suffix] = self.building_dict[non_primary_occupancy_key].building_type
+            arguments['bldg_type_' + letter_suffix + '_fract_bldg_area'] = float(occupancy_areas[non_primary_occupancy_key]) / total_area
         work_flow.add_step(OpenStudioStep('CreateBarFromBuildingTypeRatios', arguments))
 
         arguments =  {
