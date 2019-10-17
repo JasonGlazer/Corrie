@@ -525,6 +525,9 @@ class CorrieFrame(wx.Frame):
                 return  # the user changed their mind
             self.current_file_name = fileDialog.GetPath()
             self.set_window_title_with_filename(self.current_file_name)
+            root, ext = os.path.splitext(self.current_file_name)
+            new_powerpoint_name = root + '-presentation.pptx'
+            self.powerpoint_filepick.SetPath(new_powerpoint_name)
             save_data = self.construct_save_data()
             with open(self.current_file_name, 'w') as corrie_file:
                 json.dump(save_data, corrie_file, indent=4)
