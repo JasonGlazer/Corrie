@@ -28,7 +28,8 @@ In addition, a slide with the end-use breakdown is included as well as a slide o
 To install Corrie on Windows:
 
 - First, install [OpenStudio 2.8.0](https://github.com/NREL/OpenStudio/releases/tag/v2.8.0)
-Other versions of OpenStudio have not yet been tested with Corrie and may not work.
+Other versions of OpenStudio have not yet been tested with Corrie and may not work. 
+Corrie does not use the OpenStudio SketchUp plugin. If you do not have SketchUp (2017 or 2018) then deselect the plugin when installing OpenStudio.
 
 - Download the latest Corrie.zip file from [releases](https://github.com/JasonGlazer/Corrie/releases). You may need to click on "assets" to see the zip file.
 
@@ -49,6 +50,10 @@ This should open up the user interface:
 
 Select the building, the direction the front of the building faces, and the baseline code where the building is located using the dropdown options.
 
+You may notice that a "CMD" or "DOS" window opens at the same time. This can generally be ignored but does show you
+what is going on during the simulations.
+
+
 ![Building, Front Faces, Baseline Code](/images/building-faces-code.png)
 
 
@@ -66,7 +71,8 @@ For each slide, you click on the option being simulated will show up next to it.
 ![slides and options](/images/slides-and-options.PNG)
 
 Each checked option under each slide that is checked represents an individual simulation so you may want 
-just to have a few checked to begin with to see if everything is working for you. After that you can 
+just to have a few checked to begin with to see if everything is working for you. The default configuration
+runs 29 simulations which can take a while so you may want to uncheck most of them. After that you can 
 check as many as you want but will take some time to simulate many options with EnergyPlus. You can also 
 change the order that the slides appear by using the Up and Down buttons.
 
@@ -74,6 +80,9 @@ Next, save your file using the File menu. This should automatically create the n
 that is created. The PowerPoint file must be closed and is overwritten each time the simulations are run.
 
 Next, click "Run Simulations" and work on something else for a while. 
+
+The "CMD" or "DOS" window will show many errors and warnings. You don't need worry about these but the window 
+does show some of the steps that are occuring during the simulations.
 
 When the simulations are complete, find where you saved your file and open the PowerPoint file to see the 
 results. The slide deck should start with a slide showing the selections you made and look something like:
