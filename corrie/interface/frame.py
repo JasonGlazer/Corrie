@@ -2,7 +2,9 @@ import wx
 import json
 import os
 import sys
+import subprocess
 from pubsub import pub
+from concurrent import futures
 
 
 from corrie.interface import general_options
@@ -577,6 +579,7 @@ class CorrieFrame(wx.Frame):
 
     def handle_run_simulation_button(self, event):
         print('handle_run_simulation_button')
+        self.run_simulations_button.Disable()
         self.status_bar.SetStatusText('handle_run_simulation_button')
         if self.current_file_name == 'untitled.corrie' or not self.powerpoint_filepick.GetPath() or not self.weather_filepick.GetPath():
             wx.MessageBox('No simulation can be performed before: \n (1) saving the current file \n (2) choosing a PowerPoint file and \n (3) choosing a weather file.','Info', wx.OK)
@@ -584,11 +587,28 @@ class CorrieFrame(wx.Frame):
         current_save_data = self.construct_save_data()
         self.run_simulation.saved_data = current_save_data
         self.run_simulation.set_current_file_name(self.current_file_name)
-        self.run_simulation.run_simulations()
+
+        ex = futures.ThreadPoolExecutor(max_workers = 2)
+        # future = ex.submit(self.task)  #works
+        # future = ex.submit(self.run_simulation.run_sim_task) #works
+        future = ex.submit(self.run_simulation.run_simulations)
+        future.add_done_callback(self.after_done)
+        return
+
+    def task(self):
+        subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe', 'run', '-w',
+                        'D:/SBIR/corrie-test-files/test-corrie-C_simulations/Roof_Insulation__R60.osw'],
+                       cwd='D:/SBIR/corrie-test-files/test-corrie-C_simulations/')
+
+    def after_done(self, fn):
+        print(str(fn.result()))
+        # self.run_simulation.run_simulations()
+        self.run_simulations_button.Enable()
         print('All simulation complete.')
         self.status_bar.SetStatusText('All simulation complete.')
         results = self.run_simulation.collect_results()
         self.run_simulation.populate_powerpoint()
+
 
     def print_standard_paths(self):
         sp = wx.StandardPaths.Get()
