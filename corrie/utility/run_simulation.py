@@ -9,6 +9,7 @@ import string
 
 from pubsub import pub
 from collections import OrderedDict
+from shutil import rmtree
 
 from corrie.utility.openstudio_workflow import OpenStudioStep
 from corrie.utility.openstudio_workflow import OpenStudioWorkFlow
@@ -23,13 +24,20 @@ class RunSimulation(object):
         initializer = InitializeData()
         self.building_dict = initializer.populate_buildings()
 
-
     def set_current_file_name(self, current_corrie_file_name):
         self.current_corrie_file_name = current_corrie_file_name
         root, ext = os.path.splitext(self.current_corrie_file_name)
         self.path_to_simulation_folder = root + "_simulations"
         if not os.path.exists(self.path_to_simulation_folder):
             os.mkdir(self.path_to_simulation_folder)
+        else:
+            try:
+                rmtree(self.path_to_simulation_folder)
+                os.mkdir(self.path_to_simulation_folder)
+            except OSError:
+                print("OSError the path to cannot be deleted:", self.path_to_simulation_folder)
+            except PermissionError:
+                print("PermissionError the path to cannot be deleted:", self.path_to_simulation_folder)
 
     def run_simulations(self):
         slide_details = self.saved_data['slideDetails']
