@@ -158,6 +158,7 @@ class CorrieFrame(wx.Frame):
         slide_list_order = list(range(len(slide_list_text)))
         self.slide_list = wx.RearrangeCtrl(pnl, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slide_list_ctrl = self.slide_list.GetList()
+        slide_list_ctrl.SetCheckedStrings([slide_list_text[-1],]) #set only the last slide (lighting power density)
         self.Bind(wx.EVT_LISTBOX, self.handle_slide_list_ctrl_click, slide_list_ctrl)
         slide_list_ctrl.SetSelection(0)
 
@@ -352,7 +353,7 @@ class CorrieFrame(wx.Frame):
         lighting_options.append(["0.55 W/sqft", False, '0.55'])
         lighting_options.append(["0.60 W/sqft", True, '0.60'])
         lighting_options.append(["0.65 W/sqft", False, '0.65'])
-        lighting_options.append(["0.70 W/sqft", True, '0.70'])
+        lighting_options.append(["0.70 W/sqft", False, '0.70'])
         lighting_options.append(["0.75 W/sqft", False, '0.75'])
         lighting_options.append(["0.80 W/sqft", True, '0.80'])
         lighting_options.append(["0.85 W/sqft", False, '0.85'])

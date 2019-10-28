@@ -71,8 +71,7 @@ For each slide, you click on the option being simulated will show up next to it.
 ![slides and options](/images/slides-and-options.PNG)
 
 Each checked option under each slide that is checked represents an individual simulation so you may want 
-just to have a few checked to begin with to see if everything is working for you. The default configuration
-runs 29 simulations which can take a while so you may want to uncheck most of them. After that you can 
+just to have a few checked to begin with to see if everything is working for you. After that you can 
 check as many as you want but will take some time to simulate many options with EnergyPlus. You can also 
 change the order that the slides appear by using the Up and Down buttons.
 
