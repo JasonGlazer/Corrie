@@ -23,6 +23,8 @@ class RunSimulation(object):
         self.openstudio_path = self.find_openstudio()
         initializer = InitializeData()
         self.building_dict = initializer.populate_buildings()
+        self.proc = None
+        self.canceled = False
 
     def set_current_file_name(self, current_corrie_file_name):
         self.current_corrie_file_name = current_corrie_file_name
@@ -45,7 +47,7 @@ class RunSimulation(object):
         script_path = os.path.abspath(os.path.dirname(sys.argv[0]))
         seed_dir_path = os.path.join(script_path,'seed')
         seed_file_path = os.path.join(seed_dir_path, 'bar-seed.osm')
-
+        self.canceled = False
         # determine number of total simulations
         total_simulation_count = 0
         running_slides = [slide_name for slide_name, should_run in slide_order if should_run]
@@ -65,6 +67,8 @@ class RunSimulation(object):
             selected_option = ''
             for option_name, enabled_option, argument_value in options_list:
                 if enabled_option:
+                    if self.canceled:
+                        return
                     count = count + 1
                     pub.sendMessage('listenerUpdateStatusBar', message='Simulation {} of {}:  {} >>> {} '.format(count, total_simulation_count, slide_name, option_name))
                     time.sleep(0.5)
@@ -79,14 +83,17 @@ class RunSimulation(object):
                     root_name = self.root_filename_from_slide_option(slide_name, option_name)
                     osw_name = self.create_osw(root_name, work_flow)
                     print('osw_name: ',osw_name)
-                    subprocess.run([self.openstudio_path,'run','-w', osw_name], cwd=self.path_to_simulation_folder)
+                    # subprocess.run([self.openstudio_path,'run','-w', osw_name], cwd=self.path_to_simulation_folder)
+                    self.proc = subprocess.Popen([self.openstudio_path,'run','-w', osw_name], cwd=self.path_to_simulation_folder)
+                    self.proc.wait()
                     os_results = self.get_openstudio_json_results(root_name)
-                    metric_value_for_option = os_results['net_site_energy'] #presume using site energy for now
-                    # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
-                    if metric_value_for_option < selected_metric_value:
-                        selected_metric_value = metric_value_for_option
-                        selected_option = (option_name, osw_list, argument_value)
-                        self.selection_summary[slide_name] = (option_name, argument_value, metric_value_for_option)
+                    if os_results:
+                        metric_value_for_option = os_results['net_site_energy'] #presume using site energy for now
+                        # assuming "selection mode" is "automatic" will need something more sophisticated for other selection modes
+                        if metric_value_for_option < selected_metric_value:
+                            selected_metric_value = metric_value_for_option
+                            selected_option = (option_name, osw_list, argument_value)
+                            self.selection_summary[slide_name] = (option_name, argument_value, metric_value_for_option)
             if include_incremental:
                 workflow_arguments.append(selected_option)
 
@@ -145,6 +152,10 @@ class RunSimulation(object):
 
     def workflow_final_steps(self, work_flow):
         work_flow.add_step(OpenStudioStep('OpenStudioResults',{}))
+
+    def terminate_process(self):
+        self.canceled = True
+        self.proc.terminate()
 
     def create_osw(self, root_name, work_flow):
         workflow_dictionary = work_flow.return_workflow_dictionary()

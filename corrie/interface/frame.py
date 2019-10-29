@@ -59,6 +59,8 @@ class CorrieFrame(wx.Frame):
         self.Refresh()
 
         self.run_simulation = RunSimulation()
+        self.future = None
+        self.canceled = False
 
         # self.print_standard_paths()
 
@@ -204,12 +206,13 @@ class CorrieFrame(wx.Frame):
 
         self.run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
         self.run_simulations_button.Bind(wx.EVT_BUTTON, self.handle_run_simulation_button)
-        cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
-        cancel_simulations_button.Disable()
+        self.cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
+        self.cancel_simulations_button.Bind(wx.EVT_BUTTON, self.handle_cancel_simulation_button)
+        self.cancel_simulations_button.Disable()
 
         run_cancel_sizer = wx.BoxSizer(wx.HORIZONTAL)
         run_cancel_sizer.Add(self.run_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
-        run_cancel_sizer.Add(cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+        run_cancel_sizer.Add(self.cancel_simulations_button, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
 
         bottom_right_sizer = wx.BoxSizer(wx.VERTICAL)
         bottom_right_sizer.Add(self.slide_details_box, 1, wx.ALL | wx.ALIGN_TOP |wx.EXPAND, 5)
@@ -580,11 +583,13 @@ class CorrieFrame(wx.Frame):
 
     def handle_run_simulation_button(self, event):
         print('handle_run_simulation_button')
-        self.run_simulations_button.Disable()
         self.status_bar.SetStatusText('handle_run_simulation_button')
         if self.current_file_name == 'untitled.corrie' or not self.powerpoint_filepick.GetPath() or not self.weather_filepick.GetPath():
             wx.MessageBox('No simulation can be performed before: \n (1) saving the current file \n (2) choosing a PowerPoint file and \n (3) choosing a weather file.','Info', wx.OK)
             return
+        self.canceled = False
+        self.run_simulations_button.Disable()
+        self.cancel_simulations_button.Enable()
         current_save_data = self.construct_save_data()
         self.run_simulation.saved_data = current_save_data
         self.run_simulation.set_current_file_name(self.current_file_name)
@@ -592,8 +597,8 @@ class CorrieFrame(wx.Frame):
         ex = futures.ThreadPoolExecutor(max_workers = 2)
         # future = ex.submit(self.task)  #works
         # future = ex.submit(self.run_simulation.run_sim_task) #works
-        future = ex.submit(self.run_simulation.run_simulations)
-        future.add_done_callback(self.after_done)
+        self.future = ex.submit(self.run_simulation.run_simulations)
+        self.future.add_done_callback(self.after_done)
         return
 
     def task(self):
@@ -605,11 +610,22 @@ class CorrieFrame(wx.Frame):
         print(str(fn.result()))
         # self.run_simulation.run_simulations()
         self.run_simulations_button.Enable()
-        print('All simulation complete.')
-        self.status_bar.SetStatusText('All simulation complete.')
-        results = self.run_simulation.collect_results()
-        self.run_simulation.populate_powerpoint()
+        self.cancel_simulations_button.Disable()
+        if not self.canceled:
+            print('All simulation complete.')
+            self.status_bar.SetStatusText('All simulation complete.')
+            results = self.run_simulation.collect_results()
+            self.run_simulation.populate_powerpoint()
 
+
+    def handle_cancel_simulation_button(self, event):
+        if self.future:
+            self.run_simulation.terminate_process()
+            self.future.cancel()
+            self.run_simulations_button.Enable()
+            self.cancel_simulations_button.Disable()
+            self.status_bar.SetStatusText('Simulations Canceled.')
+            self.canceled = True
 
     def print_standard_paths(self):
         sp = wx.StandardPaths.Get()
