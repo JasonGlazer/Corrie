@@ -138,8 +138,9 @@ class RunSimulation(object):
 
     def workflow_previous_steps(self, work_flow, workflow_arguments):
         for workflow_argument in workflow_arguments:
-            option_name, osw_list, argument_value = workflow_argument
-            self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
+            if len(workflow_argument) == 3:
+                option_name, osw_list, argument_value = workflow_argument
+                self.workflow_current_option(work_flow, option_name, osw_list, argument_value)
 
     def workflow_current_option(self, work_flow, option_name, osw_list, argument_value):
         print('option_name', option_name)
@@ -161,6 +162,8 @@ class RunSimulation(object):
         workflow_dictionary = work_flow.return_workflow_dictionary()
         # print(json.dumps(workflow_dictionary, indent=4))
         osw_name = root_name + ".osw"
+        if not os.path.exists(self.path_to_simulation_folder):
+            os.mkdir(self.path_to_simulation_folder)
         with open(osw_name, 'w') as f:
             json.dump(workflow_dictionary, f, indent=4)
         return osw_name
@@ -269,3 +272,13 @@ class RunSimulation(object):
                 if os.path.exists(full_search_path):
                     return full_search_path
         return ''
+
+    def weather_file_validation(self, weather_file_name):
+        if not os.path.exists(weather_file_name):
+            return False
+        root, ext = os.path.splitext(weather_file_name)
+        if not os.path.exists(root + '.stat'):
+            return False
+        if not os.path.exists(root + '.ddy'):
+            return False
+        return True

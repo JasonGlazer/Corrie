@@ -587,6 +587,9 @@ class CorrieFrame(wx.Frame):
         if self.current_file_name == 'untitled.corrie' or not self.powerpoint_filepick.GetPath() or not self.weather_filepick.GetPath():
             wx.MessageBox('No simulation can be performed before: \n (1) saving the current file \n (2) choosing a PowerPoint file and \n (3) choosing a weather file.','Info', wx.OK)
             return
+        if not self.run_simulation.weather_file_validation(self.weather_filepick.GetPath()):
+            wx.MessageBox('No simulation can be performed without a matching .epw, .stat, and .ddy file.','Info', wx.OK)
+            return
         self.canceled = False
         self.run_simulations_button.Disable()
         self.cancel_simulations_button.Enable()
