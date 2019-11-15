@@ -109,4 +109,23 @@ You can post issues under the issues tab above if you find any bugs.
 
 This is just an Alpha version. I have a lot of additional features in mind. I welcome your feedback.
 
+## Linux
 
+You need python, and you'll need `wxPython`, which needs some development libraries since wxPython cannot supply binaries on PyPI For Linux.
+Please refer to [wxPython's wiki](https://wiki.wxpython.org/How%20to%20install%20wxPython) for more information.
+There are prebuilt binaries you can install (much easier) - refer to end of the wiki - or you can *try* build your own.
+
+For eg: to install with gtk3 on a ubuntu 16.04:
+
+```
+pip install -U \
+      -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04 \
+      wxPython
+```
+
+Other requirements (@JasonGlazer, create a requirements.txt at root of your repo instead)
+
+```
+pip install pypubsub
+pip install python-pptx
+```
