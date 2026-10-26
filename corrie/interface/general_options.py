@@ -57,7 +57,7 @@ class GeneralOptionsDialog(wx.Dialog):
 
         sort_option_hbox = wx.BoxSizer(wx.HORIZONTAL)
         sort_option_label = wx.StaticText(pnl, label='Chart Sort Options')
-        sort_option_options = ['No Sort', 'Ascending', 'Decending']
+        sort_option_options = ['No Sort', 'Ascending', 'Descending']
         self.sort_option_choice = wx.Choice(pnl, choices=sort_option_options)
         sort_option_hbox.Add(sort_option_label, 0, wx.ALL, 5)
         sort_option_hbox.Add(self.sort_option_choice, 1, wx.ALL, 5)
@@ -91,7 +91,7 @@ class GeneralOptionsDialog(wx.Dialog):
         self.tab_name_field = wx.TextCtrl(excel_box)
         tab_name_hbox.Add(tab_name_label, 0, wx.ALL, 5)
         tab_name_hbox.Add(self.tab_name_field, 1, wx.ALL, 5)
-        excel_sizer.Add(self.tab_name_field, 0, wx.ALL, 5)
+        excel_sizer.Add(tab_name_hbox, 0, wx.ALL, 5)
 
         columns_of_values = wx.StaticText(excel_box, label='Columns of Values')
         excel_sizer.Add(columns_of_values, 0, wx.ALL, 5)

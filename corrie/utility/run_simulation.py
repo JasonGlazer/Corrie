@@ -30,16 +30,18 @@ class RunSimulation(object):
         self.current_corrie_file_name = current_corrie_file_name
         root, ext = os.path.splitext(self.current_corrie_file_name)
         self.path_to_simulation_folder = root + "_simulations"
+
+    def clear_simulation_folder(self):
         if not os.path.exists(self.path_to_simulation_folder):
             os.mkdir(self.path_to_simulation_folder)
         else:
             try:
                 rmtree(self.path_to_simulation_folder)
                 os.mkdir(self.path_to_simulation_folder)
-            except OSError:
-                print("OSError the path to cannot be deleted:", self.path_to_simulation_folder)
             except PermissionError:
                 print("PermissionError the path to cannot be deleted:", self.path_to_simulation_folder)
+            except OSError:
+                print("OSError the path to cannot be deleted:", self.path_to_simulation_folder)
 
     def run_simulations(self):
         slide_details = self.saved_data['slideDetails']
@@ -156,7 +158,8 @@ class RunSimulation(object):
 
     def terminate_process(self):
         self.canceled = True
-        self.proc.terminate()
+        if self.proc and self.proc.poll() is None:
+            self.proc.terminate()
 
     def create_osw(self, root_name, work_flow):
         workflow_dictionary = work_flow.return_workflow_dictionary()
@@ -174,9 +177,9 @@ class RunSimulation(object):
         running_slides = [slide_name for slide_name, should_run in slide_order if should_run]
         self.collected_results = {}
         self.selection_summary = OrderedDict()
-        selected_metric_value = 1.0e+300
         for slide_name in running_slides:
             selection_mode, include_incremental, options_list, osw_list = slide_details[slide_name]
+            selected_metric_value = 1.0e+300
             option_results = {}
             for option_name, enabled_option, argument_value in options_list:
                 if enabled_option:
@@ -220,7 +223,7 @@ class RunSimulation(object):
     def populate_powerpoint(self):
         update_presentation = UpdatePresentation(self.saved_data, self.collected_results, self.current_corrie_file_name, self.selection_summary)
         # update_presentation.test1()
-        update_presentation.create_slides()
+        return update_presentation.create_slides()
 
     def root_filename_from_slide_option(self, slide_name, option_name):
         clean_file_name = self.combined_slide_option_name(slide_name, option_name)
@@ -258,13 +261,16 @@ class RunSimulation(object):
         if platform_name == 'Windows':
             search_roots = ['{}:/'.format(c) for c in string.ascii_uppercase]
         elif platform_name == 'Linux':
-            search_roots = ['/usr/local/bin/', '/tmp/']
+            search_roots = ['/usr/local/', '/opt/', '/tmp/']
         elif platform_name == 'Darwin':
             search_roots = ['/Applications/', '/tmp/']
         else:
             search_roots = ['{}:/'.format(c) for c in string.ascii_uppercase]  # presume windows if can't identify platform
         search_version = '2.8.0' # this needs to match or be greater than the version of the measures and seed file
-        application_file = '/bin/openstudio.exe'
+        if platform_name in ('Linux', 'Darwin'):
+            application_file = '/bin/openstudio'
+        else:
+            application_file = '/bin/openstudio.exe'
         search_names = ['OpenStudio-', "openstudio-", "os-", "OS-", 'OpenStudio_', "openstudio_", "os_", "OS_",'OpenStudio', "openstudio", "os", "OS"]
         for search_root in search_roots:
             for search_name in search_names:
@@ -282,3 +288,18 @@ class RunSimulation(object):
         if not os.path.exists(root + '.ddy'):
             return False
         return True
+
+    def occupancy_area_validation(self, occupancy_areas):
+        # returns an error message or an empty string if the areas are valid
+        total_area = 0
+        for name, area in occupancy_areas.items():
+            try:
+                area_value = float(area)
+            except ValueError:
+                return 'The area for {} is not a number: {}'.format(name, area)
+            if area_value < 0:
+                return 'The area for {} cannot be negative.'.format(name)
+            total_area += area_value
+        if total_area <= 0:
+            return 'The total occupancy area must be greater than zero.'
+        return ''
