@@ -1,8 +1,6 @@
 import wx
 import json
 import os
-import sys
-import subprocess
 from pubsub import pub
 from concurrent import futures
 
@@ -59,12 +57,17 @@ class CorrieFrame(wx.Frame):
         self.Refresh()
 
         self.run_simulation = RunSimulation()
+        self.executor = futures.ThreadPoolExecutor(max_workers=1)
         self.future = None
         self.canceled = False
 
         # self.print_standard_paths()
 
     def handle_frame_close(self, event):
+        if self.future and not self.future.done():
+            self.canceled = True
+            self.run_simulation.terminate_process()
+        self.executor.shutdown(wait=False)
         self.Destroy()
 
     def gui_build(self):
@@ -158,7 +161,7 @@ class CorrieFrame(wx.Frame):
 
         slide_list_text = list(self.all_slide_details.keys())
         slide_list_order = list(range(len(slide_list_text)))
-        self.slide_list = wx.RearrangeCtrl(pnl, 1, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
+        self.slide_list = wx.RearrangeCtrl(pnl, wx.ID_ANY, size=wx.DefaultSize, items=slide_list_text, order=slide_list_order)
         slide_list_ctrl = self.slide_list.GetList()
         slide_list_ctrl.SetCheckedStrings([slide_list_text[-1],]) #set only the last slide (lighting power density)
         self.Bind(wx.EVT_LISTBOX, self.handle_slide_list_ctrl_click, slide_list_ctrl)
@@ -191,7 +194,7 @@ class CorrieFrame(wx.Frame):
         slide_details_sizer.Add(option_simulated_label, 0, wx.ALL, 5)
 
         value_options = ['none',]
-        self.value_choice = wx.CheckListBox(self.slide_details_box, 1, size=wx.DefaultSize, choices=value_options)
+        self.value_choice = wx.CheckListBox(self.slide_details_box, wx.ID_ANY, size=wx.DefaultSize, choices=value_options)
         self.Bind(wx.EVT_CHECKLISTBOX, self.handle_value_choice_check, self.value_choice)
         slide_details_sizer.Add(self.value_choice, 1, wx.ALL | wx.EXPAND, 5)
 
@@ -204,9 +207,9 @@ class CorrieFrame(wx.Frame):
         self.incremental_checkbox.Hide() # hide portions of the GUI that are not yet implemented
         self.slide_details_box.SetSizer(slide_details_sizer)
 
-        self.run_simulations_button = wx.Button(pnl, 1, "Run Simulations", size=(140, 30))
+        self.run_simulations_button = wx.Button(pnl, wx.ID_ANY, "Run Simulations", size=(140, 30))
         self.run_simulations_button.Bind(wx.EVT_BUTTON, self.handle_run_simulation_button)
-        self.cancel_simulations_button = wx.Button(pnl, 1, "Cancel Simulations", size=(140, 30))
+        self.cancel_simulations_button = wx.Button(pnl, wx.ID_ANY, "Cancel Simulations", size=(140, 30))
         self.cancel_simulations_button.Bind(wx.EVT_BUTTON, self.handle_cancel_simulation_button)
         self.cancel_simulations_button.Disable()
 
@@ -462,9 +465,7 @@ class CorrieFrame(wx.Frame):
         dialog_general_options = general_options.GeneralOptionsDialog(None)
         dialog_general_options.set_parameters(self.general_options_values)
         return_value = dialog_general_options.ShowModal()
-        if return_value == dialog_general_options.CLOSE_SIGNAL_CANCEL:
-            return
-        else: #ok pressed
+        if return_value == dialog_general_options.CLOSE_SIGNAL_OK:
             self.general_options_values = dialog_general_options.general_options_dict
         dialog_general_options.Destroy()
 
@@ -520,6 +521,9 @@ class CorrieFrame(wx.Frame):
 
     def handle_file_save(self, event):
         #print("handle_file_save entered")
+        if self.current_file_name == 'untitled.corrie':
+            self.handle_file_save_as(event)
+            return
         save_data = self.construct_save_data()
         with open(self.current_file_name, 'w') as corrie_file:
             json.dump(save_data, corrie_file, indent=4)
@@ -590,39 +594,59 @@ class CorrieFrame(wx.Frame):
         if not self.run_simulation.weather_file_validation(self.weather_filepick.GetPath()):
             wx.MessageBox('No simulation can be performed without a matching .epw, .stat, and .ddy file.','Info', wx.OK)
             return
+        if not self.run_simulation.openstudio_path:
+            wx.MessageBox('No simulation can be performed because OpenStudio 2.8.0 could not be found.','Info', wx.OK)
+            return
+        current_save_data = self.construct_save_data()
+        area_error = self.run_simulation.occupancy_area_validation(current_save_data['occupancyAreas'])
+        if area_error:
+            wx.MessageBox(area_error, 'Info', wx.OK)
+            return
         self.canceled = False
         self.run_simulations_button.Disable()
         self.cancel_simulations_button.Enable()
-        current_save_data = self.construct_save_data()
         self.run_simulation.saved_data = current_save_data
         self.run_simulation.set_current_file_name(self.current_file_name)
+        self.run_simulation.clear_simulation_folder()
 
-        ex = futures.ThreadPoolExecutor(max_workers = 2)
-        # future = ex.submit(self.task)  #works
-        # future = ex.submit(self.run_simulation.run_sim_task) #works
-        self.future = ex.submit(self.run_simulation.run_simulations)
+        self.future = self.executor.submit(self.run_simulation.run_simulations)
         self.future.add_done_callback(self.after_done)
         return
 
-    def task(self):
-        subprocess.run(['C:/openstudio-2.8.0/bin/openstudio.exe', 'run', '-w',
-                        'D:/SBIR/corrie-test-files/test-corrie-C_simulations/Roof_Insulation__R60.osw'],
-                       cwd='D:/SBIR/corrie-test-files/test-corrie-C_simulations/')
-
     def after_done(self, fn):
-        print(str(fn.result()))
-        # self.run_simulation.run_simulations()
+        # called from the worker thread so pass control back to the GUI thread
+        wx.CallAfter(self.after_done_gui, fn)
+
+    def after_done_gui(self, fn):
+        if not self:  # the frame was closed while the simulations were running
+            return
         self.run_simulations_button.Enable()
         self.cancel_simulations_button.Disable()
+        try:
+            fn.result()
+        except Exception as e:
+            print('Simulation error: ', e)
+            self.status_bar.SetStatusText('Simulation error: {}'.format(e))
+            return
         if not self.canceled:
             print('All simulation complete.')
             self.status_bar.SetStatusText('All simulation complete.')
-            results = self.run_simulation.collect_results()
-            self.run_simulation.populate_powerpoint()
+            self.run_simulation.collect_results()
+            self.create_presentation()
 
+    def create_presentation(self):
+        if not self.run_simulation.saved_data['powerpointPath']:
+            wx.MessageBox('A PowerPoint file must be chosen before the presentation can be created.', 'Info', wx.OK)
+            return
+        if not any(self.run_simulation.collected_results.values()):
+            wx.MessageBox('No simulation results were found so the presentation was not created.', 'Info', wx.OK)
+            return
+        if not self.run_simulation.populate_powerpoint():
+            wx.MessageBox('The PowerPoint file is open in another program. Close it and use Option > Regenerate Presentation.', 'Info', wx.OK)
 
     def handle_cancel_simulation_button(self, event):
         if self.future:
+            self.canceled = True
             self.run_simulation.terminate_process()
             self.future.cancel()
             self.run_simulations_button.Enable()
@@ -663,7 +687,8 @@ class CorrieFrame(wx.Frame):
         self.update_occ_areas(occupany_areas)
 
     def listener_update_statusbar(self, message):
-        self.status_bar.SetStatusText(message)
+        # may be called from the worker thread so pass control back to the GUI thread
+        wx.CallAfter(self.status_bar.SetStatusText, message)
 
     def handle_menu_option_regen_output(self, event):
         print('handle_menu_option_regen_output')
@@ -673,7 +698,7 @@ class CorrieFrame(wx.Frame):
         self.run_simulation.set_current_file_name(self.current_file_name)
         results = self.run_simulation.collect_results()
         print('results: ', results)
-        self.run_simulation.populate_powerpoint()
+        self.create_presentation()
 
 
 
